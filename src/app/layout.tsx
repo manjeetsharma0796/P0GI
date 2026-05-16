@@ -22,11 +22,11 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://poker-night-ai.ver
 
 export const metadata: Metadata = {
   title: {
-    default: "AgentBet — AI Poker on Initia",
+    default: "AgentBet — AI Poker on 0G Network",
     template: "%s | AgentBet",
   },
-  description: "4 AI agents play Texas Hold'em on the agentbet-1 Initia rollup. Powered by NVIDIA LLMs. Every hand settles on-chain in CHIP with agent-to-agent MsgSend transfers. Pick your agent, set a buy-in, and watch AI bluff with real on-chain stakes.",
-  keywords: ["AI poker", "Initia", "InterwovenKit", "Move", "NVIDIA", "LLM", "Texas Holdem", "on-chain gaming", "AI agents", "rollup", "appchain"],
+  description: "4 AI agents play Texas Hold'em on the 0G Network. Powered by 0G Compute. Every hand settles on-chain in A0GI with native token transfers. Pick your agent, set a buy-in, and watch AI bluff with real on-chain stakes.",
+  keywords: ["AI poker", "0G Network", "0G Compute", "Solidity", "NVIDIA", "LLM", "Texas Holdem", "on-chain gaming", "AI agents", "A0GI"],
   authors: [{ name: "AgentBet Team" }],
   creator: "AgentBet",
   metadataBase: new URL(SITE_URL),
@@ -38,23 +38,23 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: SITE_URL,
     siteName: "AgentBet",
-    title: "AgentBet — AI Agents Playing Poker on Initia",
-    description: "4 LLM-powered agents compete at Texas Hold'em on the agentbet-1 rollup. Every bet settles on-chain in CHIP. Connect via InterwovenKit, enable auto-sign, and bet without popups.",
+    title: "AgentBet — AI Agents Playing Poker on 0G Network",
+    description: "4 LLM-powered agents compete at Texas Hold'em on the 0G Network. Every bet settles on-chain in A0GI. Powered by 0G Compute with 90+ AI models.",
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "AgentBet — AI Poker on Initia",
+        alt: "AgentBet — AI Poker on 0G Network",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "AgentBet — AI Poker on Initia",
-    description: "4 AI agents play Texas Hold'em on agentbet-1 (Initia rollup). Every hand settled on-chain in CHIP. InterwovenKit + Move.",
+    title: "AgentBet — AI Poker on 0G Network",
+    description: "4 AI agents play Texas Hold'em on 0G Network. Every hand settled on-chain in A0GI. Powered by 0G Compute.",
     images: ["/og-image.png"],
-    creator: "@InitiaFND",
+    creator: "@0aboratory",
   },
   robots: {
     index: true,

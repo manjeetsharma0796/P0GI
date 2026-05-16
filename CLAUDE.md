@@ -1,4 +1,4 @@
-# CLAUDE.md — Agent Poker Project Instructions
+# CLAUDE.md — Agent Poker (0G Network)
 
 > Every Claude Code session on this project MUST read this file first.
 
@@ -11,112 +11,71 @@
 ```bash
 bun install              # install deps
 bun add <package>        # add a package
-bun run dev              # start dev server
+bun run dev              # start Next.js frontend
+bun run server           # start 0G game server
 bun run build            # build
 bunx <tool>              # run a binary (replaces npx)
 ```
 
-If you see `npm install` anywhere — replace it with `bun add`.
-
 ---
 
-## Network — TESTNET ONLY
-
-**Always use Base Sepolia. Never mainnet.**
+## Network — 0G GALILEO TESTNET ONLY
 
 ```
-Chain ID:  84532
-RPC:       https://sepolia.base.org
-Explorer:  https://sepolia.basescan.org
-USDC:      0x036CbD53842c5426634e7929541eC2318f3dCF7e  (Base Sepolia)
-Faucet:    https://portal.cdp.coinbase.com/products/faucet
+Chain ID:  16602
+RPC:       https://evmrpc-testnet.0g.ai
+Explorer:  https://chainscan-galileo.0g.ai
+Token:     A0GI (native)
+Faucet:    https://faucet.0g.ai
 ```
 
-No real money. Test USDC only.
+No real money. Testnet A0GI only.
 
 ---
 
-## First Thing Every Session
+## Architecture
 
-1. `git pull origin main` — sync latest
-2. Read `TODO.md` — check your assigned tasks and their status
-3. Check if any task is marked `BLOCKED` — unblock before starting new work
-4. After finishing any task — update `TODO.md` status immediately
-5. Before every `git push` — update `TODO.md` with current status
-
----
-
-## Module Ownership (no conflicts)
-
-| Module | Owner | Directory |
-|--------|-------|-----------|
-| Poker Engine + Game Loop | **M** | `modules/engine/` |
-| UI + Frontend | **J** | `src/app/` |
-| AI Agent Decisions (NVIDIA) | **P** | `modules/agent/` |
-| OWS Wallets + x402 Payments | **P** | `modules/agent/` |
-| Shared Types + Mock Data | **Everyone** | `modules/shared/` + `mocks/` |
-| Server | **M** | `server/` |
-
----
-
-## Mock Data for Integration
-
-When your module is not ready, **always use mocks** so other modules don't get blocked.
-
-Mock files live in `mocks/`. Every real function must have a corresponding mock.
-
-```ts
-// Use mock until real implementation is ready:
-import { getMockAgentAction } from "../../mocks/agents"
-// import { getAgentAction } from "../agent/nvidia"  // swap when P merges
+```
+src/app/          → Next.js frontend (UI, game page, API routes)
+0g/server/        → Socket.io game server (bun run server)
+0g/compute/       → AI inference via 0G Compute (NVIDIA NIM under the hood)
+0g/engine/        → Game loop + hand management
+0g/chain/         → On-chain settlement (AgentBetGame.sol on 0G testnet)
+0g/storage/       → Game history logging to 0G Storage
+0g/sealed-inference/ → TEE-verified inference module
+modules/engine/   → Poker engine (@chevtek/poker-engine wrapper)
+modules/agent/    → Agent skill definitions
+modules/shared/   → Shared TypeScript types
 ```
 
-When you replace a mock → update `TODO.md` MOCK column to `REAL`.
-
 ---
 
-## When Stuck (3+ attempts on same issue)
+## Running the Project
 
-Use **Context7** MCP to get up-to-date docs:
-```
-/context7
-```
-
-Use it for: OWS SDK, x402 payment flow, @chevtek/poker-engine, NVIDIA API quirks.
-After resolving — add a comment in the code explaining the fix.
-
----
-
-## Git Workflow
+Two terminals needed:
 
 ```bash
-git checkout -b feat/<person>/<feature>
-# e.g. feat/M/engine  |  feat/J/ui  |  feat/P/agent-wallet
+# Terminal 1 — Game server (AI + chain)
+bun run server
 
-# Commit format
-git commit -m "feat(engine): poker table init with 4 agents"
-git commit -m "mock(wallets): add testnet wallet addresses"
-git commit -m "fix(nvidia): fallback to fold on invalid JSON"
-
-# Update TODO.md before pushing
-git push origin feat/<person>/<feature>
-# Open PR → main
+# Terminal 2 — Frontend
+bun run dev
 ```
+
+Open http://localhost:3000
 
 ---
 
-## Project Stack
+## Key Files
 
-```
-Runtime:    Bun
-Frontend:   Next.js 16 + Tailwind + TypeScript
-Backend:    Bun server + Socket.io
-Network:    Base Sepolia testnet (chain 84532)
-LLM:        NVIDIA free API (OpenAI-compatible)
-Wallets:    OWS SDK
-Payments:   x402 (@x402/core @x402/evm @x402/fetch)
-Types:      modules/shared/types.ts (source of truth)
-```
+| File | Purpose |
+|------|---------|
+| `0g/compute/0g-compute.ts` | AI inference (NVIDIA NIM, branded "0G Compute") |
+| `0g/engine/0g-game-manager.ts` | Full game loop, settlement, storage |
+| `0g/chain/0g-settlement.ts` | Native A0GI transfers on-chain |
+| `0g/chain/0g-chain.ts` | AgentBetGame contract interaction |
+| `0g/server/0g-server.ts` | Socket.io server entry point |
+| `.env.local` | All secrets (never commit) |
 
 ---
 
@@ -124,8 +83,21 @@ Types:      modules/shared/types.ts (source of truth)
 
 `.env.local` (never commit):
 ```env
-NVIDIA_API_KEY=
-NEXT_PUBLIC_CHAIN_ID=84532
-NEXT_PUBLIC_RPC_URL=https://sepolia.base.org
+NVIDIA_API_KEY=              # NVIDIA NIM inference
+ZG_API_KEY=                  # 0G Compute API key
+ZG_PRIVATE_KEY=              # Funded wallet for gas + settlement
+ZG_RPC_URL=https://evmrpc-testnet.0g.ai
+ZG_CONTRACT_ADDRESS=         # Deployed AgentBetGame.sol
 NEXT_PUBLIC_SOCKET_URL=http://localhost:3001
+```
+
+---
+
+## Git Workflow
+
+```bash
+# Commit format
+git commit -m "feat(0g-compute): dynamic model discovery"
+git commit -m "fix(settlement): handle insufficient gas"
+git commit -m "chore: remove stale Base Sepolia artifacts"
 ```

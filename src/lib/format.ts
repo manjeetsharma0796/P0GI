@@ -1,64 +1,57 @@
 /**
- * Shared display helpers for the AgentBet UI. Everything onchain is CHIP on
- * our `agentbet-1` rollup — this module centralizes the formatting so the
- * app never leaks stale "$" / "USDC" / sepolia strings.
+ * Shared display helpers for the AgentBet UI.
+ * Everything on-chain is native A0GI on the 0G Galileo Testnet (chain 16602).
+ * 1 game-cent = 10^14 wei = 0.0001 A0GI.
  */
 
-export const ROLLUP_CHAIN_ID =
-  process.env.NEXT_PUBLIC_ROLLUP_CHAIN_ID || "agentbet-1"
-export const ROLLUP_INDEXER =
-  process.env.NEXT_PUBLIC_ROLLUP_INDEXER || "http://localhost:8080"
-export const ROLLUP_REST =
-  process.env.NEXT_PUBLIC_ROLLUP_REST || "http://localhost:1317"
-export const ROLLUP_RPC =
-  process.env.NEXT_PUBLIC_ROLLUP_RPC || "http://localhost:26657"
+export const ZG_CHAIN_ID = 16602
+export const ZG_RPC_URL =
+  process.env.NEXT_PUBLIC_ZG_RPC_URL || "https://evmrpc-testnet.0g.ai"
+export const ZG_EXPLORER =
+  process.env.NEXT_PUBLIC_ZG_EXPLORER || "https://chainscan-galileo.0g.ai"
 
-export const TOKEN_SYMBOL = "CHIP"
-export const TOKEN_DECIMALS = 6
+export const TOKEN_SYMBOL = "A0GI"
+export const TOKEN_DECIMALS = 18
 
 /**
- * Internal "cents" → display CHIP string.
+ * Internal "cents" → display token string.
  * The game engine uses `cents` (100 cents = 1 unit of display).
- * 1 game-cent = 0.01 CHIP display. So "5000 cents" → "50.00 CHIP".
+ * 1 game-cent = 0.0001 A0GI. So "5000 cents" → "0.50 A0GI".
  */
 export function formatChip(cents: number, opts?: { symbol?: boolean; decimals?: number }): string {
-  const decimals = opts?.decimals ?? 2
-  const value = (cents / 100).toFixed(decimals)
+  const decimals = opts?.decimals ?? 4
+  const value = (cents / 10000).toFixed(decimals)
   return opts?.symbol === false ? value : `${value} ${TOKEN_SYMBOL}`
 }
 
 /**
  * Short variant without the ticker symbol. Use when the column header already
- * says "CHIP" to avoid doubling up.
+ * says "A0GI" to avoid doubling up.
  */
-export function formatChipBare(cents: number, decimals = 2): string {
-  return (cents / 100).toFixed(decimals)
+export function formatChipBare(cents: number, decimals = 4): string {
+  return (cents / 10000).toFixed(decimals)
 }
 
-/** uchip (on-chain unit) → display CHIP string. */
-export function formatUchip(uchip: number | string, decimals = 2): string {
-  const n = typeof uchip === "string" ? Number(uchip) : uchip
-  return `${(n / 10 ** TOKEN_DECIMALS).toFixed(decimals)} ${TOKEN_SYMBOL}`
+/** Wei → display A0GI string. */
+export function formatWei(wei: bigint | string | number, decimals = 4): string {
+  const n = typeof wei === "bigint" ? wei : BigInt(wei)
+  const whole = n / BigInt(10 ** TOKEN_DECIMALS)
+  const frac = n % BigInt(10 ** TOKEN_DECIMALS)
+  const fracStr = frac.toString().padStart(TOKEN_DECIMALS, "0").slice(0, decimals)
+  return `${whole}.${fracStr} ${TOKEN_SYMBOL}`
 }
 
-/** Tx detail URL — our own Next.js page at `/tx/[hash]` which server-side
- *  proxies the rollup REST endpoint and renders a clean block-explorer-style
- *  view (tx info, Move call, HandSettled event, transfers). */
+/** Tx detail URL — links to 0G chain explorer. */
 export function explorerTxUrl(hash: string): string {
-  return `/tx/${hash}`
+  return `${ZG_EXPLORER}/tx/${hash}`
 }
 
-/** Raw REST JSON for advanced users. */
-export function explorerTxRawJsonUrl(hash: string): string {
-  return `${ROLLUP_REST}/cosmos/tx/v1beta1/txs/${hash}`
-}
-
-/** Address balance URL (pretty JSON of all coin balances held at this addr). */
+/** Address URL on 0G explorer. */
 export function explorerAddressUrl(address: string): string {
-  return `${ROLLUP_REST}/cosmos/bank/v1beta1/balances/${address}`
+  return `${ZG_EXPLORER}/address/${address}`
 }
 
-/** Truncate an `init1…` or `0x…` address for display. */
+/** Truncate an `0x…` address for display. */
 export function truncateAddress(address: string, head = 8, tail = 6): string {
   if (!address) return ""
   if (address.length <= head + tail + 3) return address
@@ -70,4 +63,4 @@ export function truncateHash(hash: string, head = 8, tail = 6): string {
   return truncateAddress(hash, head, tail)
 }
 
-export const NETWORK_LABEL = "Initia · agentbet-1"
+export const NETWORK_LABEL = "0G · Galileo Testnet"

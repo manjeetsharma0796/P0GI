@@ -149,7 +149,7 @@ export default function AgentsPage() {
                       </button>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-[10px] text-[#444]">agentbet-1</span>
+                      <span className="text-[10px] text-[#444]">0G Testnet</span>
                       <div className="flex items-center gap-2">
                         <span className="text-[11px] font-mono text-white/70">
                           {agent.balances ? `${parseFloat(agent.balances.usdc).toFixed(2)} CHIP` : "loading..."}

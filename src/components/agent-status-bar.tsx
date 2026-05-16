@@ -112,7 +112,7 @@ export function AgentStatusBar({ buyInCents }: { buyInCents?: number } = {}) {
       {/* Divider */}
       <div className="w-px h-4 bg-[#1a2236] shrink-0" />
 
-      {/* Balances — CHIP on agentbet-1 */}
+      {/* Balances — A0GI on 0G Testnet */}
       <div className="flex items-center gap-2 shrink-0">
         <span className="text-xs font-mono text-white/70">
           {selectedAgent.balances

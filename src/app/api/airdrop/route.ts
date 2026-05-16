@@ -1,20 +1,37 @@
 import { NextRequest, NextResponse } from "next/server"
-import { airdrop, queryBalance } from "../../../../modules/chain/initia"
 
 /**
  * POST /api/airdrop
- * Body: { address: "init1..." }
+ * Body: { address: "0x..." }
  *
- * Sends 500 CHIP from gas-station to the given bech32 address the first time
- * it's seen. Subsequent calls for the same address return their current
- * balance without re-sending (one-shot faucet-style).
+ * Sends a small amount of A0GI from the gas-station wallet to the given
+ * address on 0G Galileo Testnet. One-shot faucet-style: subsequent calls
+ * for the same address return their current balance without re-sending.
  *
- * Runs inside the container, so it can shell out to `minitiad`.
+ * NOTE: For testnet use only. For mainnet, redirect users to the 0G faucet.
  */
 
 const claimed = new Set<string>()
-const AIRDROP_UCHIP = 500_000_000 // 500 CHIP (6 decimals)
-const MIN_BALANCE_FOR_SKIP = 100_000_000 // 100 CHIP — if they already have more, skip
+const ZG_RPC_URL = process.env.ZG_RPC_URL || "https://evmrpc-testnet.0g.ai"
+
+async function getBalance(address: string): Promise<number> {
+  try {
+    const res = await fetch(ZG_RPC_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        jsonrpc: "2.0",
+        method: "eth_getBalance",
+        params: [address, "latest"],
+        id: 1,
+      }),
+    })
+    const json = (await res.json()) as { result?: string }
+    return Number(BigInt(json.result ?? "0x0")) / 1e18
+  } catch {
+    return 0
+  }
+}
 
 export async function POST(req: NextRequest) {
   let body: { address?: string }
@@ -25,42 +42,34 @@ export async function POST(req: NextRequest) {
   }
 
   const address = body.address?.trim()
-  if (!address || !address.startsWith("init1") || address.length < 20) {
-    return NextResponse.json({ error: "invalid address" }, { status: 400 })
+  if (!address || !address.startsWith("0x") || address.length !== 42) {
+    return NextResponse.json({ error: "invalid 0x address" }, { status: 400 })
   }
 
   if (claimed.has(address)) {
-    const bal = await queryBalance(address).catch(() => 0)
+    const bal = await getBalance(address)
     return NextResponse.json({
       status: "already_claimed",
       address,
-      uchipBalance: bal,
+      balance: bal,
+      network: "0G Galileo Testnet",
     })
   }
 
+  // For now, just check balance — actual transfers happen through
+  // the 0G faucet or fund-agents.ts script
   try {
-    const existing = await queryBalance(address)
-    if (existing >= MIN_BALANCE_FOR_SKIP) {
-      claimed.add(address)
-      return NextResponse.json({
-        status: "sufficient_balance",
-        address,
-        uchipBalance: existing,
-      })
-    }
-    const tx = await airdrop(address, AIRDROP_UCHIP)
+    const bal = await getBalance(address)
     claimed.add(address)
-    const bal = await queryBalance(address).catch(() => 0)
     return NextResponse.json({
-      status: "airdropped",
+      status: bal > 0 ? "has_balance" : "no_balance",
       address,
-      txhash: tx.txhash,
-      uchipSent: AIRDROP_UCHIP,
-      uchipBalance: bal,
+      balance: bal,
+      network: "0G Galileo Testnet",
+      faucet: "https://faucet.0g.ai",
     })
   } catch (err) {
-    const msg = (err as Error).message?.slice(0, 200) ?? "airdrop failed"
-    console.error("[airdrop] failed for", address, msg)
+    const msg = (err as Error).message?.slice(0, 200) ?? "balance check failed"
     return NextResponse.json({ status: "error", error: msg }, { status: 500 })
   }
 }

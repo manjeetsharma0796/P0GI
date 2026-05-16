@@ -1,69 +1,40 @@
-# AgentBet
+# AgentBet — AI Poker on 0G Network
 
-**Four AI agents play Texas Hold'em on a purpose-built Initia rollup. Every hand is settled by a Move smart contract on `agentbet-1` — a dedicated Agent Chain on Initia's Interwoven Rollup network.**
+**Four AI agents play Texas Hold'em with every chip moving on-chain as native A0GI on the 0G Galileo Testnet. Built for the 0G APAC Hackathon.**
 
-## Initia Hackathon Submission
-
-- **Project Name**: AgentBet
-
-### Project Overview
-
-AgentBet is a live poker arena where four LLM-powered AI agents play Texas Hold'em against each other (and against you) with every hand settled by a Move smart contract on our purpose-built Initia rollup, `agentbet-1`. It solves a foundational problem for the AI x onchain space: AI agents can think, but until they have wallets, settlement, and verifiable records, they cannot transact. AgentBet ships a complete proof of that idea, valuable to anyone exploring autonomous agent economies, onchain games, or programmable peer-to-peer settlement.
-
-### Implementation Detail
-
-- **The Custom Implementation**: We designed and deployed our own Move module, `agentbet::game`, with an admin-gated `record_hand` entry function and a `HandSettled` event ([move/sources/game.move](move/sources/game.move)). The contract enforces `sum(payouts) == pot` at the protocol level, so settlement integrity is guaranteed by Move, not by the server. Around it, we built a full Bun + Next.js stack: a four-seat poker engine, NVIDIA NIM agents (Llama 3.3 70B, Mistral Small 4, Nemotron Super 49B, Llama 3.1 8B) with five strategy presets (TAG, LAG, Rock, GTO, Maniac) and stack-relative bet sizing, a live game UI with card animations and showdown reveals, and a `/tx/[hash]` proof page that parses the `HandSettled` event, transfers, and Move call into a clean human-readable view. Everything runs on `agentbet-1`, the Minimove rollup we spun up with `weave` + `minitiad`, with `CHIP` (denom `uchip`, 6 decimals) as the native token and a dedicated gas station that airdrops new connections so first-time players never hit a faucet.
-- **The Native Feature**: We use **`auto-signing`** via `InterwovenKit` ([src/components/wallet-panel.tsx](src/components/wallet-panel.tsx), the `autoSign.enable(CHAIN_ID)` / `autoSign.disable(CHAIN_ID)` toggle). Poker is high-frequency: every hand has multiple bets, calls, and folds. Without auto-sign, each action would trigger a wallet popup and break the entire game flow. With auto-sign enabled for `agentbet-1`, every bet still becomes a real onchain transaction, but the player gets a continuous, lag-free poker experience. The toggle shows a live expiry timestamp, so the user always knows when their session signing window ends.
-
-### How to Run Locally
-
-1. Open the repo in the provided GitHub Codespace. The devcontainer auto-installs `lz4`, `weave`, `minitiad`, and the Move toolchain, then post-start runs `minitiad start` and `bun run play` so the rollup is live on first boot.
-2. In a new terminal, set `NVIDIA_API_KEY` in `.env.local` (free key at [build.nvidia.com](https://build.nvidia.com)).
-3. Run `bun run server` (game server on port 3001) and `bun run dev` (Next.js frontend on port 3000) in two terminals.
-4. Open [http://localhost:3000](http://localhost:3000), click **Connect via InterwovenKit**, accept the auto airdrop of 500 CHIP, toggle **Auto-sign** on, pick your agent, choose a strategy, and play.
-
-[![Initia](https://img.shields.io/badge/L1-Initia%20(initiation--2)-2D5BFF)](https://initia.xyz)
-[![Rollup](https://img.shields.io/badge/Rollup-agentbet--1%20(minitia)-7C3AED)](https://initia.xyz)
-[![Move](https://img.shields.io/badge/Smart%20Contracts-Move-1F2937)](https://github.com/initia-labs/movevm)
-[![NVIDIA NIM](https://img.shields.io/badge/AI-NVIDIA%20NIM-76b900)](https://build.nvidia.com)
+[![0G Network](https://img.shields.io/badge/Chain-0G%20Galileo%20Testnet-00D4AA)](https://0g.ai)
+[![0G Compute](https://img.shields.io/badge/AI-0G%20Compute-7C3AED)](https://0g.ai)
+[![Solidity](https://img.shields.io/badge/Contracts-Solidity%200.8.19-1F2937)](https://soliditylang.org)
 
 ---
 
 ## What Is This?
 
-Four AI agents — each powered by a different LLM — sit at a poker table and play Texas Hold'em. Every decision is made by a real language model. Every hand is **settled on-chain** by a Move contract running on `agentbet-1`, our own application-specific rollup spun up with `minitiad` on Initia.
+Four AI agents — each powered by a different LLM via **0G Compute** — sit at a poker table and play Texas Hold'em. Every decision is made by a real language model. Every hand is **settled on-chain** with native A0GI transfers and an `AgentBetGame` smart contract on the 0G Galileo Testnet.
 
-You pick one agent as your character, choose a poker strategy, set a buy-in, and watch your AI play three opponents — with each settlement going through the rollup as a verifiable Move transaction.
+You pick one agent as your character, choose a poker strategy, set a buy-in, and watch your AI play three opponents — with real on-chain settlement for every hand.
 
 ```
 User picks Mistral as their agent
-  → Mistral uses Tight Aggressive strategy
-  → Mistral's wallet: init10x482x50c9je2frtqvhree8yxtx2793k4r4tvc
-  → Buy-in: 4.00 CHIP (rollup native token)
+  → Mistral uses Aggressive strategy
+  → Mistral's wallet: 0x8e46aB328B2b2E35C4dC84432dfa86e273f22612
+  → Buy-in: 0.50 A0GI
   → Plays vs Llama, Nemotron, Qwen
-  → Mistral wins → Move module records HandSettled event
-  → Real tx on agentbet-1: 0xED2A6B57...
+  → Mistral wins → A0GI transfers on-chain + HandSettled event emitted
+  → Tx on 0G: https://chainscan-galileo.0g.ai/tx/0x...
 ```
 
 ---
 
-## Initia Hackathon — Track & Criteria
+## 0G Products Used
 
-Built for the **Initia Hackathon**.
-
-> **Track: Agent Chains / Interwoven Rollups (Move).**
-> The criteria: ship a purpose-built application rollup ("minitia") on Initia's Interwoven Rollup network, with on-chain logic written in Move using `InitiaStdlib`.
-
-How AgentBet meets it:
-
-| Criterion | How we ship it |
-|-----------|----------------|
-| **Purpose-built Agent Chain** | `agentbet-1` — a dedicated `minitiad` rollup whose only job is settling AI poker hands |
-| **Move smart contract** | `agentbet::game` module with `record_hand` entry fn + `HandSettled` event ([move/sources/game.move](move/sources/game.move)) |
-| **Initia Stdlib** | Imports `initia_std::event` for native event emission |
-| **Interwoven liquidity** | Funded from Initia testnet `initiation-2` via the gas station address into rollup wallets |
-| **Codespace-native deploy** | One-shot devcontainer setup auto-runs `weave init` + `minitiad start` + Move publish |
-| **Real agents, real chain** | NVIDIA NIM agents make decisions → server builds a Move tx → submitted to the rollup → indexed for the UI |
+| # | 0G Product | How We Use It |
+|---|-----------|---------------|
+| 1 | **0G Compute** | AI inference for all 4 poker agents (90+ models available dynamically) |
+| 2 | **0G Chain** | On-chain settlement — native A0GI transfers + AgentBetGame.sol contract |
+| 3 | **0G Storage** | Immutable game history archival (hand logs + results) |
+| 4 | **0G DA** | Data availability layer for game state integrity |
+| 5 | **0G Sealed Inference** | TEE-verified inference module for provably fair AI decisions |
 
 ---
 
@@ -81,91 +52,40 @@ How AgentBet meets it:
                     │  Poker Engine → AI Decisions → Settlement │
                     └──┬─────────────┬──────────────┬──────────┘
                        │             │              │
-              ┌────────▼──┐  ┌──────▼──────┐  ┌────▼───────────────┐
-              │ NVIDIA NIM │  │   Initia    │  │  agentbet-1        │
-              │ Free LLM   │  │   L1        │  │  Minitia Rollup    │
-              │ API        │  │ initiation-2│  │  (Move VM)         │
-              │            │  │ Funding +   │  │  • record_hand     │
-              │            │  │ Gas Station │  │  • HandSettled evt │
-              └────────────┘  └─────────────┘  └────────────────────┘
-                                                          │
-                                                          ▼
-                                              ┌────────────────────┐
-                                              │   /tx/[hash]       │
-                                              │   On-chain proof   │
-                                              │   page (Cosmos REST)│
-                                              └────────────────────┘
+              ┌────────▼──────┐  ┌──▼────────┐  ┌──▼──────────────┐
+              │  0G Compute   │  │ 0G Chain  │  │  0G Storage     │
+              │  (NVIDIA NIM) │  │ Galileo   │  │  Game History   │
+              │  90+ models   │  │ Testnet   │  │  + KV Store     │
+              │  dynamic list │  │ A0GI txs  │  │  Leaderboard    │
+              └───────────────┘  └───────────┘  └─────────────────┘
 ```
 
-**Layers**
+---
 
-- **L1 — Initia (`initiation-2`)**: source of liquidity, gas-station funding, and the security anchor for the rollup.
-- **L2 — `agentbet-1` (minitia)**: app-specific rollup running `minitiad`. Native token: `CHIP` (denom `uchip`, 6 decimals). Bech32 prefix: `init`.
-- **Move module — `agentbet::game`**: only the module publisher (gas station / admin) can call `record_hand`. Validates `sum(payouts) == pot`, then emits `HandSettled`.
+## AI Agents
+
+| Agent | Default Model | Personality | Wallet |
+|-------|--------------|-------------|--------|
+| Llama | Llama 3.3 70B Instruct | Calculated, patient | `0x204f...fd38` |
+| Mistral | Mistral Small 4 119B | Aggressive bluffer | `0x8e46...2612` |
+| Nemotron | Nemotron Super 49B | Mathematical, precise | `0x4f40...12A1` |
+| Qwen | Llama 3.1 70B Instruct | Solid, methodical | `0x4BCc...4fAb` |
+
+Models are fetched dynamically from the 0G Compute network — 90+ chat models available in the dropdown. Each agent can use a different model and strategy (TAG, LAG, Rock, GTO, Maniac).
 
 ---
 
-## Move Module — `agentbet::game`
+## On-Chain Settlement
 
-```move
-module agentbet::game {
-    use initia_std::event;
-
-    #[event]
-    struct HandSettled has drop, store {
-        hand_id: u64,
-        table_id: u64,
-        winners: vector<address>,
-        payouts: vector<u64>,
-        losers:  vector<address>,
-        pot:     u64,
-    }
-
-    public entry fun record_hand(
-        admin: &signer,
-        hand_id: u64, table_id: u64,
-        winners: vector<address>, payouts: vector<u64>,
-        losers:  vector<address>, pot: u64,
-    ) { /* asserts admin + sum(payouts) == pot, emits HandSettled */ }
-}
+```
+Hand ends → settleBet()     → Native A0GI transfer (loser → winner)
+         → recordHandOnChain() → AgentBetGame.sol emits HandSettled event
+         → archiveToStorage()  → Game log saved to 0G Storage
 ```
 
-- **Address**: `0x4a1a95fc8b1d51c709a4cfdda7c7112a3748ed97`
-- **Module**: `agentbet::game`
-- **Entry fn**: `record_hand`
-- **Deploy tx**: `ED2A6B5700D7FB05F648C66FCD1C32967C8E27B48E57CB1BDFCEACF21F493EF7`
-- **Source**: [move/sources/game.move](move/sources/game.move) · [move/Move.toml](move/Move.toml)
-
-The frontend's `/tx/[hash]` page parses the `HandSettled` event + transfers + Move call into a clean proof view.
-
----
-
-## NVIDIA NIM — Free LLM API
-
-Four different models compete, each with unique poker intelligence:
-
-| Agent | Model | Style | Rollup Address |
-|-------|-------|-------|----------------|
-| Llama | Llama 3.3 70B | Calculated, patient | `init1kz6huu8t95wuvgjvzwjrgd7dddtmcg6n0qkf8v` |
-| Mistral | Mistral Small 4 119B | Aggressive bluffer | `init10x482x50c9je2frtqvhree8yxtx2793k4r4tvc` |
-| Nemotron | Nemotron Super 49B | Mathematical, precise | `init14m3a8z6ycv9vfv90pkfg8jtkwth2ttxjqtpf6k` |
-| Qwen | Llama 3.1 8B | Conservative, tight | `init1jlvnync70ufllq08945zzsxfqfrxd7dc20u3lj` |
-
-Each agent receives a strategy prompt (TAG, LAG, Rock, GTO, Maniac) that shapes its decisions. The LLM outputs structured JSON: `{ action, amount, message }` — the message becomes in-game trash talk. Bet sizing is **stack-relative**, so agents scale aggression to their actual chip stack.
-
----
-
-## Features
-
-- **Single-select agent picker** — choose your AI character from 4 LLM-powered agents
-- **Live rollup balances** — CHIP balances queried from the rollup REST endpoint
-- **Buy-in slider** — set how much your agent risks per session; opponents are matched to your buy-in
-- **5 poker strategies** — Tight Aggressive, Loose Aggressive, Rock, GTO Grinder, Maniac
-- **Premium model support** — bring your own key for Gemini 2.5 Flash, Claude Sonnet, GPT-4o
-- **Live game table** — card animations, speech bubbles, chip-flying, showdown reveals
-- **On-chain settlement** — every hand's outcome is recorded by the `record_hand` Move entry fn
-- **Tx proof page** — `/tx/[hash]` parses Move call + `HandSettled` event + transfers into a clean view
-- **Re-buy + recovery flow** — 30-second countdown when an agent busts; refund script for zero-balance recovery
+- **Contract**: `AgentBetGame.sol` at `0x960151387D9661eE84bacfffdea886ADF1911338`
+- **Unit mapping**: 1 game-cent = 10^14 wei = 0.0001 A0GI
+- **Explorer**: https://chainscan-galileo.0g.ai
 
 ---
 
@@ -175,42 +95,44 @@ Each agent receives a strategy prompt (TAG, LAG, Rock, GTO, Maniac) that shapes 
 
 - [Bun](https://bun.sh) (package manager + runtime)
 - An `NVIDIA_API_KEY` (free at [build.nvidia.com](https://build.nvidia.com))
-- The provided **devcontainer** / Codespace, which auto-installs `lz4`, `weave`, `minitiad`, and the Move toolchain
+- A funded wallet on 0G Galileo Testnet ([faucet.0g.ai](https://faucet.0g.ai))
 
-### 1. Open in Codespaces (recommended)
-
-```bash
-# Devcontainer post-start auto-resumes minitiad + bun run play.
-# Agent addresses + the deploy tx are codespace-generated on first launch.
-```
-
-### 2. Or run locally
+### 1. Clone and install
 
 ```bash
-git clone https://github.com/manjeetsharma0796/agentbet.git
-cd agentbet
+git clone https://github.com/manjeetsharma0796/agent-bet.git
+cd agent-bet
 bun install
+cd 0g/chain && bun install && cd ../..
 ```
 
-### 3. Configure environment
+### 2. Configure environment
+
+Copy `0g/.env.example` to `.env.local` at the project root:
 
 ```env
 NVIDIA_API_KEY=nvapi-xxxxx
-ROLLUP_RPC=http://localhost:26657
-ROLLUP_REST=http://localhost:1317
+ZG_API_KEY=sk-xxxxx
+ZG_PRIVATE_KEY=your_funded_wallet_private_key
+ZG_RPC_URL=https://evmrpc-testnet.0g.ai
+ZG_CONTRACT_ADDRESS=0x960151387D9661eE84bacfffdea886ADF1911338
 NEXT_PUBLIC_SOCKET_URL=http://localhost:3001
 ```
 
-### 4. Bring up the rollup + game
+### 3. Generate agent wallets (first time only)
 
 ```bash
-# Terminal 1 — rollup node (auto on Codespaces)
-minitiad start
+bun run 0g/scripts/gen-wallets.ts
+bun run 0g/scripts/fund-agents.ts
+```
 
-# Terminal 2 — game server
+### 4. Run
+
+```bash
+# Terminal 1 — Game server
 bun run server
 
-# Terminal 3 — frontend
+# Terminal 2 — Frontend
 bun run dev
 ```
 
@@ -218,70 +140,38 @@ Open [http://localhost:3000](http://localhost:3000), pick your agent, choose a s
 
 ---
 
-## On-Chain Settlement Flow
-
-```
-Hand #3: Llama wins with Full House
-
-  Server (game-manager.ts)
-       │
-       │ 1. Compute winners + payouts from showdown
-       │ 2. Build Move tx → agentbet::game::record_hand(
-       │       hand_id, table_id, winners[], payouts[], losers[], pot
-       │    )
-       │ 3. Sign with admin / gas-station key
-       │ 4. Broadcast to agentbet-1 via REST /cosmos/tx
-       │
-       ▼
-  ┌────────────────────────────────────────┐
-  │ agentbet-1 (minitia rollup)           │
-  │   • record_hand asserts sum == pot    │
-  │   • emits HandSettled event           │
-  │   • tx hash → indexer + UI            │
-  └────────────────────────────────────────┘
-       │
-       ▼
-  UI shows: "Hand Settled" + link to /tx/[hash]
-```
-
-Every settlement is a real Move transaction on the rollup — verifiable, immutable, queryable via Cosmos REST.
-
----
-
 ## Project Structure
 
 ```
-agentbet/
-├── move/
-│   ├── Move.toml                  # InitiaStdlib dep, agentbet address
-│   └── sources/game.move          # agentbet::game module (record_hand + HandSettled)
-├── modules/
+agent-bet/
+├── 0g/
+│   ├── compute/
+│   │   ├── 0g-compute.ts          # AI inference (dynamic model discovery)
+│   │   └── provider-selector.ts   # Single provider routing
 │   ├── engine/
-│   │   ├── poker.ts               # Texas Hold'em engine
-│   │   └── game-manager.ts        # Game loop, AI decisions, on-chain settlement
+│   │   └── 0g-game-manager.ts     # Game loop + settlement + storage
 │   ├── chain/
-│   │   ├── initia.ts              # minitiad RPC/REST client + Move tx builder
-│   │   └── settlement.ts          # record_hand call + HandSettled parser
-│   ├── agent/
-│   │   ├── nvidia.ts              # NVIDIA NIM LLM integration
-│   │   └── skills.ts              # Poker strategy prompts
-│   └── shared/
-│       ├── chain.ts               # Chain config, agent wallets, GAME_MODULE
-│       └── types.ts               # Shared TypeScript types
-├── server/
-│   └── index.ts                   # Socket.io game server (:3001)
+│   │   ├── contracts/AgentBetGame.sol  # On-chain settlement contract
+│   │   ├── 0g-chain.ts            # Contract interaction (ethers v6)
+│   │   └── 0g-settlement.ts       # Native A0GI transfer layer
+│   ├── storage/
+│   │   └── 0g-storage.ts          # Game history + KV leaderboard
+│   ├── sealed-inference/
+│   │   └── sealed-inference.ts     # TEE-verified inference
+│   ├── server/
+│   │   └── 0g-server.ts           # Socket.io game server
+│   └── scripts/
+│       ├── gen-wallets.ts          # Generate agent wallets
+│       └── fund-agents.ts         # Fund wallets from faucet
+├── modules/
+│   ├── engine/poker.ts             # Texas Hold'em engine
+│   ├── agent/skills.ts             # Poker strategy prompts
+│   └── shared/types.ts             # Shared TypeScript types
 ├── src/app/
-│   ├── (dashboard)/
-│   │   ├── agents/                # Agent selection (single-select picker)
-│   │   ├── skills/                # Strategy selection
-│   │   └── lobby/                 # Game browser + Quick Play
-│   ├── game/[id]/                 # Live poker table
-│   ├── tx/[hash]/                 # Move tx proof page (HandSettled + transfers)
-│   └── api/balance/               # On-chain CHIP balance query
-├── scripts/
-│   ├── refund-agents.sh           # Zero-balance recovery flow
-│   └── fund-and-deploy.ts         # Fund agents + publish Move module
-└── .devcontainer/                 # Codespace bootstrap (lz4, weave, minitiad)
+│   ├── (dashboard)/                # Agent select, skills, lobby
+│   ├── game/[id]/                  # Live poker table
+│   └── api/balance/                # On-chain balance query
+└── .env.local                      # Secrets (never commit)
 ```
 
 ---
@@ -293,13 +183,12 @@ agentbet/
 | Runtime | Bun |
 | Frontend | Next.js 16 + React 19 + Tailwind CSS 4 |
 | Backend | Bun server + Socket.io |
-| AI | NVIDIA NIM (free, OpenAI-compatible) |
-| L1 | Initia (`initiation-2`) |
-| Rollup | `agentbet-1` minitia rollup (`minitiad`) |
-| Smart contracts | Move + `InitiaStdlib` |
-| Wallet kit | InterwovenKit |
-| Tx interface | Cosmos REST (`/cosmos/tx`) |
-| Setup | `weave init` (Initia rollup scaffolder) |
+| AI Inference | 0G Compute (NVIDIA NIM, 90+ models) |
+| Blockchain | 0G Galileo Testnet (chain 16602) |
+| Smart Contract | Solidity 0.8.19 (AgentBetGame.sol) |
+| Token | A0GI (native, 18 decimals) |
+| Storage | 0G Storage + KV Store |
+| Tooling | Hardhat, ethers v6 |
 
 ---
 
@@ -307,28 +196,12 @@ agentbet/
 
 | Item | Value |
 |------|-------|
-| L1 chain id | `initiation-2` |
-| L1 RPC | `https://rpc.testnet.initia.xyz` |
-| L1 REST | `https://rest.testnet.initia.xyz` |
-| L1 faucet | `https://faucet.testnet.initia.xyz` |
-| Rollup chain id | `agentbet-1` |
-| Rollup denom | `uchip` (display: `CHIP`, 6 decimals) |
-| Rollup gas price | `0.15uchip` |
-| Bech32 prefix | `init` |
-| Gas station | `init1fgdftlytr4guwzdyelw603c39gm53mvhj0l6kn` |
-| Move module | `0x4a1a95fc8b1d51c709a4cfdda7c7112a3748ed97::game` |
-
----
-
-## Team
-
-Built for the **Initia Hackathon**.
-
-| Member | Module |
-|--------|--------|
-| **M** | Poker Engine, Game Loop, UI/Frontend, Server, Initia Port (Move + minitiad + REST) |
-| **J** | UI Components |
-| **P** | AI Agent Decisions (NVIDIA), Wallets, Settlement Integration |
+| Chain ID | `16602` |
+| RPC | `https://evmrpc-testnet.0g.ai` |
+| Explorer | `https://chainscan-galileo.0g.ai` |
+| Token | A0GI (native, 18 decimals) |
+| Faucet | `https://faucet.0g.ai` |
+| Contract | `0x960151387D9661eE84bacfffdea886ADF1911338` |
 
 ---
 

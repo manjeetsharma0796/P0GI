@@ -198,7 +198,7 @@ export function useGame() {
           description: `${event.message}`,
           duration: 15000,
           action: {
-            label: "View on agentbet-1 ↗",
+            label: "View on 0G Explorer ↗",
             onClick: () => window.open(txUrl, "_blank"),
           },
           style: { background: "#0c1018", border: "1px solid #76b900", color: "#fff" },
@@ -212,7 +212,7 @@ export function useGame() {
     }
     if (event.type === "action" && event.message === "settlement_complete" && event.txHash) {
       const txUrl = explorerTxUrl(event.txHash)
-      toast.success("✅ CHIP transfer confirmed", {
+      toast.success("✅ A0GI transfer confirmed", {
         description: `${event.action?.message}\ntx: ${event.txHash.slice(0, 18)}...`,
         duration: 15000,
         action: {
@@ -229,7 +229,7 @@ export function useGame() {
     if (event.type === "action" && event.message === "hand_recorded_onchain" && event.txHash) {
       const txUrl = explorerTxUrl(event.txHash)
       toast("📝 HandSettled event emitted", {
-        description: `agentbet::game::record_hand\ntx: ${event.txHash.slice(0, 18)}...`,
+        description: `AgentBetGame.recordHand\ntx: ${event.txHash.slice(0, 18)}...`,
         duration: 10000,
         action: {
           label: "View ↗",

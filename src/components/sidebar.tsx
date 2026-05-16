@@ -42,7 +42,7 @@ export function Sidebar() {
         <div className="p-3 border-t border-border">
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-accent animate-pulse" />
-            <span className="text-xs text-muted">agentbet-1 · Initia</span>
+            <span className="text-xs text-muted">0G · Galileo Testnet</span>
           </div>
         </div>
       </aside>
