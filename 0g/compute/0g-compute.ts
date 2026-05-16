@@ -1,26 +1,148 @@
 // 0g/compute/0g-compute.ts
 // AI inference for the 0G-integrated poker game.
 //
-// Branded as "0G Compute" to users. Under the hood this uses NVIDIA NIM
-// (OpenAI-compatible) for reliable, free inference on proven LLM models.
-// The 0G Compute Router API can be swapped in when testnet keys are live
-// by changing the baseURL and apiKey below — zero other code changes needed.
+// Branded as "0G Compute" to users. Uses NVIDIA NIM (OpenAI-compatible)
+// for reliable, free inference. Models are fetched dynamically from the
+// /v1/models endpoint so the dropdown always shows what's available.
 
 import OpenAI from "openai"
 import type { AgentAction, Agent, GameState } from "../../modules/shared/types"
 import { getSkillPrompt } from "../../modules/agent/skills"
 
 // ─── Inference Client ──────────────────────────────────────────────────────
-// Uses NVIDIA NIM endpoint. To switch to 0G Router later:
-//   baseURL: "https://router-api.0g.ai/v1"
-//   apiKey:  process.env.ZG_API_KEY
+
 const client = new OpenAI({
   baseURL: "https://integrate.api.nvidia.com/v1",
   apiKey: process.env.NVIDIA_API_KEY!,
 })
 
+// ─── Dynamic Model Discovery ────────────────────────────────────────────────
+
+export interface ModelInfo {
+  id: string
+  name: string
+  provider: string
+  size: string
+  free: boolean
+}
+
+let _cachedModels: ModelInfo[] | null = null
+let _cacheTimestamp = 0
+const CACHE_TTL_MS = 5 * 60 * 1000 // 5 minutes
+
+/**
+ * Fetch all available chat/instruct models from the API.
+ * Results are cached for 5 minutes to avoid hammering the endpoint.
+ */
+export async function fetchAvailableModels(): Promise<ModelInfo[]> {
+  // Return cache if fresh
+  if (_cachedModels && Date.now() - _cacheTimestamp < CACHE_TTL_MS) {
+    return _cachedModels
+  }
+
+  try {
+    const resp = await fetch("https://integrate.api.nvidia.com/v1/models", {
+      headers: { Authorization: `Bearer ${process.env.NVIDIA_API_KEY}` },
+      signal: AbortSignal.timeout(10000),
+    })
+
+    if (!resp.ok) {
+      console.warn(`[0G Compute] /models returned ${resp.status}, using fallback list`)
+      return FALLBACK_MODELS
+    }
+
+    const data = (await resp.json()) as { data: { id: string; owned_by?: string }[] }
+
+    const models: ModelInfo[] = (data.data || [])
+      .filter((m) => {
+        const id = m.id.toLowerCase()
+        // Exclude non-chat models
+        if (
+          id.includes("embed") || id.includes("rerank") || id.includes("tts") ||
+          id.includes("asr") || id.includes("safety") || id.includes("guard") ||
+          id.includes("reward") || id.includes("parse") || id.includes("translate") ||
+          id.includes("content-safety") || id.includes("deplot") || id.includes("nemo-asr")
+        ) return false
+        // Keep instruct/chat/reasoning models and known good LLM families
+        if (
+          id.includes("instruct") || id.includes("chat") || id.includes("-it") ||
+          id.includes("reasoning") || id.includes("thinking")
+        ) return true
+        // Keep known LLM model families (non-instruct variants still work for chat)
+        if (
+          id.includes("llama") || id.includes("mistral") || id.includes("nemotron") ||
+          id.includes("qwen") || id.includes("deepseek") || id.includes("gemma") ||
+          id.includes("phi-") || id.includes("dbrx") || id.includes("mixtral") ||
+          id.includes("jamba") || id.includes("palmyra") || id.includes("solar") ||
+          id.includes("granite") || id.includes("starcoder") || id.includes("codestral")
+        ) return true
+        return false
+      })
+      // Deduplicate by id
+      .filter((m, i, arr) => arr.findIndex((x) => x.id === m.id) === i)
+      .map((m): ModelInfo => {
+        const owner = m.owned_by || m.id.split("/")[0]
+        const shortName = m.id.split("/").pop() ?? m.id
+        // Extract size hint from model name
+        const sizeMatch = shortName.match(/(\d+(?:\.\d+)?)[bB]/)
+        const size = sizeMatch ? `${sizeMatch[1]}B` : "—"
+        return {
+          id: m.id,
+          name: formatModelName(shortName),
+          provider: formatProviderName(owner),
+          size,
+          free: true,
+        }
+      })
+      .sort((a, b) => a.provider.localeCompare(b.provider) || a.name.localeCompare(b.name))
+
+    _cachedModels = models
+    _cacheTimestamp = Date.now()
+    console.log(`[0G Compute] Fetched ${models.length} available models`)
+    return models
+  } catch (err) {
+    console.warn(`[0G Compute] Model fetch failed: ${(err as Error).message?.slice(0, 80)}`)
+    return _cachedModels ?? FALLBACK_MODELS
+  }
+}
+
+function formatModelName(raw: string): string {
+  return raw
+    .replace(/-/g, " ")
+    .replace(/\b\w/g, (c) => c.toUpperCase())
+    .replace(/(\d+)b/gi, "$1B")
+    .replace(/V(\d)/g, "v$1")
+    .trim()
+}
+
+function formatProviderName(raw: string): string {
+  const map: Record<string, string> = {
+    meta: "Meta", google: "Google", nvidia: "NVIDIA", mistralai: "Mistral AI",
+    qwen: "Qwen", microsoft: "Microsoft", ibm: "IBM", "deepseek-ai": "DeepSeek",
+    "nv-mistralai": "NVIDIA × Mistral", ai21labs: "AI21 Labs",
+    abacusai: "AbacusAI", bytedance: "ByteDance", databricks: "Databricks",
+    writer: "Writer", upstage: "Upstage", stockmark: "Stockmark",
+    aisingapore: "AI Singapore", zyphra: "Zyphra", bigcode: "BigCode",
+  }
+  return map[raw] ?? raw.charAt(0).toUpperCase() + raw.slice(1)
+}
+
+// Fallback if API is unreachable
+const FALLBACK_MODELS: ModelInfo[] = [
+  { id: "meta/llama-3.3-70b-instruct", name: "Llama 3.3 70B Instruct", provider: "Meta", size: "70B", free: true },
+  { id: "mistralai/mistral-small-4-119b-2603", name: "Mistral Small 4 119B", provider: "Mistral AI", size: "119B", free: true },
+  { id: "nvidia/llama-3.3-nemotron-super-49b-v1", name: "Nemotron Super 49B", provider: "NVIDIA", size: "49B", free: true },
+  { id: "meta/llama-3.1-70b-instruct", name: "Llama 3.1 70B Instruct", provider: "Meta", size: "70B", free: true },
+  { id: "deepseek-ai/deepseek-v4-flash", name: "DeepSeek v4 Flash", provider: "DeepSeek", size: "—", free: true },
+  { id: "google/gemma-4-31b-it", name: "Gemma 4 31B IT", provider: "Google", size: "31B", free: true },
+  { id: "qwen/qwen3.5-397b-a17b", name: "Qwen 3.5 397B", provider: "Qwen", size: "397B", free: true },
+]
+
+// ─── Static export for backward compat (provider-selector uses this) ────────
+
+export const ZG_AVAILABLE_MODELS = FALLBACK_MODELS
+
 // ─── Agent Definitions ─────────────────────────────────────────────────────
-// Presented to users as "0G Compute" models
 
 export let ZG_AGENTS: Agent[] = [
   {
@@ -53,13 +175,6 @@ export let ZG_AGENTS: Agent[] = [
   },
 ]
 
-export const ZG_AVAILABLE_MODELS = [
-  { id: "meta/llama-3.3-70b-instruct", name: "Llama 3.3 70B", provider: "0G Compute", size: "70B", free: true },
-  { id: "mistralai/mistral-small-4-119b-2603", name: "Mistral Small 4", provider: "0G Compute", size: "119B", free: true },
-  { id: "nvidia/llama-3.3-nemotron-super-49b-v1", name: "Nemotron Super 49B", provider: "0G Compute", size: "49B", free: true },
-  { id: "meta/llama-3.1-70b-instruct", name: "Llama 3.1 70B", provider: "0G Compute", size: "70B", free: true },
-]
-
 export function setZgAgentConfig(configs: { seatIndex: number; modelId: string; skillId: string; isUser?: boolean }[]) {
   for (const cfg of configs) {
     if (cfg.seatIndex >= 0 && cfg.seatIndex < ZG_AGENTS.length) {
@@ -72,6 +187,8 @@ export function setZgAgentConfig(configs: { seatIndex: number; modelId: string; 
   }
   console.log("[0G Compute] Agent config updated:", ZG_AGENTS.map(a => `${a.name}(${a.model.split("/").pop()}/${a.skillId})`).join(", "))
 }
+
+// ─── Inference ──────────────────────────────────────────────────────────────
 
 export async function getZgAgentAction(
   agent: Agent,

@@ -7,8 +7,8 @@
 import { Server } from "socket.io"
 import { createServer } from "http"
 import { createGameManager, type ZgGameManager } from "../engine/0g-game-manager"
-import { setZgAgentConfig, ZG_AVAILABLE_MODELS } from "../compute/0g-compute"
-import { getAvailableModels, getDefaultAgents } from "../compute/provider-selector"
+import { setZgAgentConfig } from "../compute/0g-compute"
+import { getAvailableModelsDynamic, getDefaultAgents } from "../compute/provider-selector"
 import { getLeaderboard } from "../storage/0g-storage"
 
 const PORT = Number(process.env.ZG_SERVER_PORT ?? 3001)
@@ -116,15 +116,18 @@ io.on("connection", (socket) => {
 
   // ── Get available models ──────────────────────────────────────────────
 
-  socket.on("get_providers", () => {
-    const agents = getDefaultAgents()
+  socket.on("get_providers", async () => {
+    const [models, agents] = await Promise.all([
+      getAvailableModelsDynamic(),
+      Promise.resolve(getDefaultAgents()),
+    ])
     socket.emit("providers", {
       current: "0G Compute",
       available: [{
         id: "0g-compute",
         name: "0G Compute",
         description: "AI inference powered by the 0G Compute Network",
-        models: getAvailableModels(),
+        models,
         agents: agents.map(a => ({ name: a.name, model: a.model, personality: a.personality, skillId: a.skillId })),
       }],
     })
