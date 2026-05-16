@@ -5,7 +5,7 @@ import { toast } from "sonner"
 import { useInterwovenKit } from "@initia/interwovenkit-react"
 import { useWallet } from "@/providers/wallet-provider"
 
-const CHAIN_ID = process.env.NEXT_PUBLIC_ROLLUP_CHAIN_ID || "agentbet-1"
+const CHAIN_ID = process.env.NEXT_PUBLIC_ROLLUP_CHAIN_ID || "p0gi-1"
 const ROLLUP_INDEXER =
   process.env.NEXT_PUBLIC_ROLLUP_INDEXER || "http://localhost:8080"
 
@@ -75,7 +75,7 @@ export function SpectatorBetting() {
             },
           },
         ],
-        memo: `agentbet:side-bet:${agentId}`,
+        memo: `p0gi:side-bet:${agentId}`,
       })
 
       setBets(prev => ({

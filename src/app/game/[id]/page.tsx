@@ -136,7 +136,7 @@ export default function GamePage() {
     if (latest?.type === "action" && latest.message === "settlement_complete" && latest.txHash) {
       const link = explorerTxUrl(latest.txHash)
       setChatMessages((prev) => [...prev.slice(-50), {
-        from: "agentbet-1",
+        from: "p0gi-1",
         text: `${latest.action?.message ?? "CHIP transfer"}\n🔗 ${link}`,
         time: Date.now(),
       }])
@@ -151,7 +151,7 @@ export default function GamePage() {
     }
     if (latest?.type === "action" && latest.message === "settlement_failed") {
       setChatMessages((prev) => [...prev.slice(-50), {
-        from: "agentbet-1",
+        from: "p0gi-1",
         text: `❌ ${latest.action?.message ?? "Settlement failed"}`,
         time: Date.now(),
       }])

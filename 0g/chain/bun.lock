@@ -3,7 +3,7 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "agentbet-0g-contracts",
+      "name": "p0gi-0g-contracts",
       "devDependencies": {
         "@nomicfoundation/hardhat-toolbox": "^6.1.2",
         "@nomicfoundation/hardhat-verify": "^2.1.3",

@@ -6,14 +6,14 @@ async function main() {
     ? "https://chainscan.0g.ai"
     : "https://chainscan-galileo.0g.ai";
 
-  // ── Deploy AgentBetGame ───────────────────────────────────────────────────
+  // ── Deploy P0GI Game (AgentBetGame) ────────────────────────────────────────
 
-  console.log(`\nDeploying AgentBetGame to ${network}...`);
+  console.log(`\nDeploying P0GI game contract to ${network}...`);
   const AgentBetGame = await hre.ethers.getContractFactory("AgentBetGame");
   const game = await AgentBetGame.deploy();
   await game.waitForDeployment();
   const gameAddress = await game.getAddress();
-  console.log(`AgentBetGame deployed at: ${gameAddress}`);
+  console.log(`P0GI game contract deployed at: ${gameAddress}`);
   console.log(`Explorer: ${explorerBase}/address/${gameAddress}`);
 
   // ── Deploy CHIPToken ──────────────────────────────────────────────────────
@@ -58,7 +58,7 @@ async function main() {
   console.log("\n══════════════════════════════════════════════════════");
   console.log("DEPLOYMENT COMPLETE");
   console.log("══════════════════════════════════════════════════════");
-  console.log(`AgentBetGame:  ${gameAddress}`);
+  console.log(`P0GI Game:     ${gameAddress}`);
   console.log(`CHIPToken:     ${chipAddress}`);
   console.log(`\nAdd to .env.local:`);
   console.log(`  ZG_CONTRACT_ADDRESS=${gameAddress}`);

@@ -197,7 +197,7 @@ export function RebuyModal({
           </div>
 
           <p className="text-xs" style={{ color: "#4b5563" }}>
-            Send CHIP to this address on <span style={{ color: "#9ca3af" }}>agentbet-1</span>, then click{" "}
+            Send CHIP to this address on <span style={{ color: "#9ca3af" }}>p0gi-1</span>, then click{" "}
             <span style={{ color: "#9ca3af" }}>Check Balance</span> to refresh.
           </p>
 

@@ -1,5 +1,5 @@
 /**
- * Shared display helpers for the AgentBet UI.
+ * Shared display helpers for the P0GI UI.
  * Everything on-chain is CHIP (ERC20) on the 0G Galileo Testnet (chain 16602).
  * CHIP has 18 decimals. 1 game-cent = 0.01 CHIP.
  */

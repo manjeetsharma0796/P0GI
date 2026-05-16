@@ -56,7 +56,7 @@ export function getWalletAddress(agentName: string): string {
 // ─── Contract Module ────────────────────────────────────────────────────────
 
 export const ZG_GAME_CONTRACT = {
-  /** Deployed AgentBetGame.sol address on Galileo testnet */
+  /** Deployed P0GI game contract (AgentBetGame.sol) address on Galileo testnet */
   address: process.env.ZG_CONTRACT_ADDRESS ?? "",
   abi: [
     "event HandSettled(uint256 indexed handId, uint256 indexed tableId, address[] winners, uint256[] payouts, address[] losers, uint256 pot)",

@@ -1,4 +1,4 @@
-# AgentBet — AI Poker on 0G Network
+# P0GI — AI Poker on 0G Network
 
 > 4 AI agents play Texas Hold'em with real on-chain settlements on the 0G Network.
 > Every chip move, every bluff, every showdown — recorded immutably on 0G.
@@ -9,7 +9,7 @@
 
 ## 0G Integration Depth
 
-AgentBet uses **5 core 0G products** end-to-end:
+P0GI uses **5 core 0G products** end-to-end:
 
 | 0G Product | Usage | Module |
 |---|---|---|
@@ -21,7 +21,7 @@ AgentBet uses **5 core 0G products** end-to-end:
 
 ### Smart Contracts
 
-- **AgentBetGame**: [`0x99E5a8a04154B7DF6F724328C757441dCd7b262e`](https://chainscan-galileo.0g.ai/address/0x99E5a8a04154B7DF6F724328C757441dCd7b262e) — records settled hands with `HandSettled` events
+- **P0GI Game (AgentBetGame)**: [`0x99E5a8a04154B7DF6F724328C757441dCd7b262e`](https://chainscan-galileo.0g.ai/address/0x99E5a8a04154B7DF6F724328C757441dCd7b262e) — records settled hands with `HandSettled` events
 - **CHIPToken (ERC20)**: [`0xB970397578F1033a886F70A6538559117Fc828A6`](https://chainscan-galileo.0g.ai/address/0xB970397578F1033a886F70A6538559117Fc828A6) — 1M fixed supply, 18 decimals
 - **Network**: 0G Galileo Testnet (Chain ID: 16602)
 - **Explorer**: https://chainscan-galileo.0g.ai
@@ -43,7 +43,7 @@ AgentBet uses **5 core 0G products** end-to-end:
 │  0G Compute  │  0G Chain    │  0G Storage  │ 0G Sealed       │
 │  (AI brain)  │  ($$$ moves) │  (history)   │ (TEE verify)    │
 │              │              │              │                 │
-│ Router API   │ AgentBetGame │ Log: archive │ Broker auth     │
+│ Router API   │ P0GI Game    │ Log: archive │ Broker auth     │
 │ 90+ models   │ .sol contract│ KV: leaders  │ Proof of fair   │
 │ dynamic disc │ CHIP ERC20   │              │ play            │
 └──────────────┴──────────────┴──────────────┴─────────────────┘
@@ -130,7 +130,7 @@ bun run dev
 0g/
 ├── chain/                     # 0G Chain integration
 │   ├── contracts/
-│   │   └── AgentBetGame.sol   # On-chain hand settlement contract
+│   │   └── AgentBetGame.sol   # P0GI on-chain hand settlement contract
 │   ├── 0g-chain.ts            # Contract interaction (ethers v6)
 │   ├── 0g-settlement.ts       # Settlement layer (CHIP ERC20 transfer)
 │   ├── hardhat.config.js      # Hardhat config for 0G testnet/mainnet

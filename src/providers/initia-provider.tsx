@@ -19,12 +19,12 @@ const ROLLUP_REST =
   process.env.NEXT_PUBLIC_ROLLUP_REST || "http://localhost:1317"
 const ROLLUP_INDEXER =
   process.env.NEXT_PUBLIC_ROLLUP_INDEXER || "http://localhost:8080"
-const CHAIN_ID = process.env.NEXT_PUBLIC_ROLLUP_CHAIN_ID || "agentbet-1"
+const CHAIN_ID = process.env.NEXT_PUBLIC_ROLLUP_CHAIN_ID || "p0gi-1"
 const FEE_DENOM = "uchip"
 
-const agentbetChain = {
+const p0giChain = {
   chain_id: CHAIN_ID,
-  chain_name: "AgentBet Rollup",
+  chain_name: "P0GI Rollup",
   network_type: "testnet",
   bech32_prefix: "init",
   apis: {
@@ -71,7 +71,7 @@ export function InitiaProvider({ children }: { children: ReactNode }) {
         <InterwovenKitProvider
           {...TESTNET}
           defaultChainId={CHAIN_ID}
-          customChain={agentbetChain}
+          customChain={p0giChain}
         >
           {children}
         </InterwovenKitProvider>

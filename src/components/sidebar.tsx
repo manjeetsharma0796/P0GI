@@ -17,7 +17,7 @@ export function Sidebar() {
       {/* Desktop sidebar */}
       <aside className="hidden md:flex w-56 shrink-0 border-r border-border bg-card flex-col h-screen sticky top-0">
         <div className="p-4 border-b border-border">
-          <h1 className="text-lg font-bold text-white tracking-tight">AgentBet</h1>
+          <h1 className="text-lg font-bold text-white tracking-tight">P0GI</h1>
           <p className="text-xs text-muted mt-0.5">AI Texas Hold&apos;em</p>
         </div>
         <nav className="flex-1 p-2 flex flex-col gap-1">

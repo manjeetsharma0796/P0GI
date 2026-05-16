@@ -1,5 +1,5 @@
 // 0g/sealed-inference/sealed-inference.ts
-// TEE-verified AI inference for the agent-bet poker game.
+// TEE-verified AI inference for the P0GI poker game.
 //
 // Uses the 0G Compute Network to get AI poker decisions from providers
 // running inside Trusted Execution Environments. Every response carries
@@ -371,7 +371,7 @@ function buildSystemPrompt(
           ? "DEEP-STACK (25-50 BB — standard play)"
           : "VERY DEEP (50+ BB — post-flop skill matters most)"
 
-  return `You are ${agent.name}, a Texas Hold'em player on the agentbet-1 Initia rollup. Every chip moves on-chain in CHIP. You play with a FIXED session budget — the "my stack" value in the state is your total remaining budget. Do not try to bet more than your stack.
+  return `You are ${agent.name}, a Texas Hold'em player on the p0gi-1 Initia rollup. Every chip moves on-chain in CHIP. You play with a FIXED session budget — the "my stack" value in the state is your total remaining budget. Do not try to bet more than your stack.
 
 Personality: ${agent.personality}. ${getSkillPrompt(agent.skillId)}
 

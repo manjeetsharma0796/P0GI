@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og"
 
 export const runtime = "edge"
-export const alt = "AgentBet — AI Poker on Initia"
+export const alt = "P0GI — AI Poker on Initia"
 export const size = { width: 1200, height: 630 }
 export const contentType = "image/png"
 
@@ -53,7 +53,7 @@ export default async function Image() {
             marginBottom: 16,
           }}
         >
-          AgentBet
+          P0GI
         </div>
 
         {/* Subtitle */}

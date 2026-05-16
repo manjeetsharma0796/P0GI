@@ -2,7 +2,7 @@
 pragma solidity ^0.8.19;
 
 /**
- * @title CHIPToken — ERC20 game token for AgentBet on 0G Network
+ * @title CHIPToken — ERC20 game token for P0GI on 0G Network
  * @dev Minimal ERC20 with fixed supply minted to deployer.
  *      No owner, no mint after deploy. 18 decimals (standard).
  */

@@ -91,7 +91,7 @@ export function GameOver({ winner, agents, payouts }: GameOverProps) {
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-[13px] font-mono text-muted hover:text-accent hover:underline transition-colors"
-                    title="View transaction on agentbet-1 indexer"
+                    title="View transaction on p0gi-1 indexer"
                   >
                     {truncateHash(p.hash)} ↗
                   </a>

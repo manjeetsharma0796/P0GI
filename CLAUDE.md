@@ -1,4 +1,4 @@
-# CLAUDE.md — Agent Poker (0G Network)
+# CLAUDE.md — P0GI (0G Network)
 
 > Every Claude Code session on this project MUST read this file first.
 

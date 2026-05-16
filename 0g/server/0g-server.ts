@@ -1,5 +1,5 @@
 // 0g/server/0g-server.ts
-// Socket.io server for the 0G-integrated agent-bet poker game.
+// Socket.io server for the 0G-integrated P0GI poker game.
 // All AI inference is powered by 0G Compute.
 //
 // Run: bun run 0g/server/0g-server.ts
@@ -20,7 +20,7 @@ const httpServer = createServer((req, res) => {
     res.writeHead(200, { "Content-Type": "application/json" })
     res.end(JSON.stringify({
       status: "ok",
-      service: "agentbet-0g-server",
+      service: "p0gi-0g-server",
       provider: "0G Compute",
     }))
     return

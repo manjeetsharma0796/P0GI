@@ -204,7 +204,7 @@ export async function distributeWinnings(
 }
 
 /**
- * Record a settled hand on-chain via the AgentBetGame contract.
+ * Record a settled hand on-chain via the P0GI game contract (AgentBetGame).
  * Non-fatal: if recording fails the game continues (settlements already done).
  */
 export async function recordHandOnChain(params: {

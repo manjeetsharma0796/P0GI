@@ -1,4 +1,4 @@
-# AgentBet -- AI Poker Agents on the 0G Network
+# P0GI -- AI Poker Agents on the 0G Network
 
 **Four AI agents. Four different LLMs. Real ERC20 token settlement. Every chip moves on-chain.**
 
@@ -11,9 +11,9 @@
 
 ---
 
-## What Is AgentBet?
+## What Is P0GI?
 
-AgentBet is a fully on-chain AI poker arena where four autonomous agents -- each running a **different large language model** through **0G Compute** -- play Texas Hold'em against each other. Every poker decision is made by a real LLM. Every bet is a real **ERC20 CHIP token transfer** on the **0G Galileo Testnet**. Every hand is recorded immutably on-chain.
+P0GI is a fully on-chain AI poker arena where four autonomous agents -- each running a **different large language model** through **0G Compute** -- play Texas Hold'em against each other. Every poker decision is made by a real LLM. Every bet is a real **ERC20 CHIP token transfer** on the **0G Galileo Testnet**. Every hand is recorded immutably on-chain.
 
 You pick an agent, choose a poker strategy, set a buy-in in CHIP tokens, and watch your AI play three opponents with real on-chain settlement after every single hand.
 
@@ -24,7 +24,7 @@ User picks Mistral as their agent
   -> Plays vs Llama, Nemotron, Qwen (each using a different LLM)
   -> Hand plays out -> 0G Compute returns each agent's decision
   -> Hand settles -> losers send CHIP to winners via ERC20 transfer
-  -> AgentBetGame.sol emits HandSettled event (on-chain audit trail)
+  -> P0GI's AgentBetGame.sol emits HandSettled event (on-chain audit trail)
   -> Game history archived to 0G Storage
   -> Verify: https://chainscan-galileo.0g.ai/tx/0x...
 ```
@@ -33,7 +33,7 @@ User picks Mistral as their agent
 
 ## 0G Ecosystem Integration
 
-AgentBet is built from the ground up on the 0G stack. Every major 0G product is integrated as a core component, not a surface-level add-on.
+P0GI is built from the ground up on the 0G stack. Every major 0G product is integrated as a core component, not a surface-level add-on.
 
 ### 1. 0G Compute -- AI Inference Engine
 
@@ -53,11 +53,11 @@ Every time an agent needs to make a poker decision (fold, call, or raise), a rea
 
 > **Files:** `0g/chain/0g-settlement.ts`, `0g/chain/0g-chain.ts`, `0g/chain/contracts/`
 
-Every poker hand settles with **real ERC20 token transfers** on the 0G Galileo Testnet. After each hand, losers transfer CHIP tokens directly to the winner via `chip.transfer()`. The `AgentBetGame.sol` contract then records the hand result by emitting a `HandSettled` event -- creating a permanent, auditable on-chain history.
+Every poker hand settles with **real ERC20 token transfers** on the 0G Galileo Testnet. After each hand, losers transfer CHIP tokens directly to the winner via `chip.transfer()`. P0GI's `AgentBetGame.sol` contract then records the hand result by emitting a `HandSettled` event -- creating a permanent, auditable on-chain history.
 
 - **ERC20 CHIP token** -- custom game currency (`CHIPToken.sol`), 18 decimals, 1M fixed supply minted to deployer
 - **Per-hand settlement** -- after every hand, each loser's wallet calls `chip.transfer(winner, amount)` on-chain
-- **On-chain audit trail** -- `AgentBetGame.recordHand()` emits `HandSettled(handId, tableId, winners[], payouts[], losers[], pot)` events
+- **On-chain audit trail** -- P0GI's `AgentBetGame.recordHand()` emits `HandSettled(handId, tableId, winners[], payouts[], losers[], pot)` events
 - **Dual token model** -- CHIP (ERC20) for game currency, A0GI (native) for gas fees
 - **Unit mapping** -- 1 game-cent = 0.01 CHIP = 10^16 wei; UI displays whole numbers (e.g., 500 CHIP)
 - **Balance-checked** -- settlement checks on-chain balance before each transfer; insufficient funds skip gracefully
@@ -110,7 +110,7 @@ All contracts are live on the **0G Galileo Testnet (Chain ID: 16602)**.
 
 | Contract | Address | Purpose |
 |----------|---------|---------|
-| **AgentBetGame.sol** | [`0x99E5a8a04154B7DF6F724328C757441dCd7b262e`](https://chainscan-galileo.0g.ai/address/0x99E5a8a04154B7DF6F724328C757441dCd7b262e) | On-chain hand recording, `HandSettled` events |
+| **P0GI's AgentBetGame.sol** | [`0x99E5a8a04154B7DF6F724328C757441dCd7b262e`](https://chainscan-galileo.0g.ai/address/0x99E5a8a04154B7DF6F724328C757441dCd7b262e) | On-chain hand recording, `HandSettled` events |
 | **CHIPToken.sol** | [`0xB970397578F1033a886F70A6538559117Fc828A6`](https://chainscan-galileo.0g.ai/address/0xB970397578F1033a886F70A6538559117Fc828A6) | ERC20 game token (18 decimals, 1M supply) |
 
 **Explorer:** [https://chainscan-galileo.0g.ai](https://chainscan-galileo.0g.ai)
@@ -167,7 +167,7 @@ Each agent has a dedicated wallet pre-funded with **10,000 CHIP** and **0.03 A0G
 4. **Hands play out** -- each agent's decision comes from **0G Compute** (different LLM per agent)
 5. **Sealed verification** -- **0G Sealed Inference** can verify decisions via TEE attestation
 6. **On-chain settlement** -- losers send CHIP tokens to winners via ERC20 transfer on **0G Chain**
-7. **On-chain recording** -- `AgentBetGame.sol` records the hand, emitting a `HandSettled` event
+7. **On-chain recording** -- P0GI's `AgentBetGame.sol` records the hand, emitting a `HandSettled` event
 8. **Archival** -- hand data archived to **0G Storage** Log layer (immutable, content-addressed)
 9. **Leaderboard** -- agent stats updated on **0G Storage** KV layer (wins, losses, earnings)
 10. **Data availability** -- **0G DA** ensures all archived game data remains retrievable
@@ -196,7 +196,7 @@ Each agent has a dedicated wallet pre-funded with **10,000 CHIP** and **0.03 A0G
 ## Project Structure
 
 ```
-agent-bet/
+p0gi/
 |
 +-- 0g/
 |   +-- compute/
@@ -249,8 +249,8 @@ agent-bet/
 ### 1. Clone and Install
 
 ```bash
-git clone https://github.com/manjeetsharma0796/agent-bet.git
-cd agent-bet
+git clone https://github.com/manjeetsharma0796/P0GI.git
+cd p0gi
 bun install
 cd 0g/chain && bun install && cd ../..
 ```
@@ -307,7 +307,7 @@ Open [http://localhost:3000](http://localhost:3000), pick your agent, choose a s
 | **Game Token** | CHIP (ERC20, 18 decimals) |
 | **Gas Token** | A0GI (native) |
 | **Faucet** | [faucet.0g.ai](https://faucet.0g.ai) |
-| **AgentBetGame** | `0x99E5a8a04154B7DF6F724328C757441dCd7b262e` |
+| **P0GI's AgentBetGame** | `0x99E5a8a04154B7DF6F724328C757441dCd7b262e` |
 | **CHIPToken** | `0xB970397578F1033a886F70A6538559117Fc828A6` |
 
 ---
