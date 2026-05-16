@@ -1,0 +1,12 @@
+{
+  "project_name": "AgentBet",
+  "repo_url": "https://github.com/manjeetsharma0796/agent-bet",
+  "commit_sha": "79a0032de94157cdc4ba9bd2d2d7568f5ce79f32",
+  "rollup_chain_id": "agentbet-1",
+  "deployed_address": "0x4a1a95fc8b1d51c709a4cfdda7c7112a3748ed97",
+  "vm": "move",
+  "native_feature": "auto-signing",
+  "core_logic_path": "move/sources/game.move",
+  "native_feature_frontend_path": "src/components/wallet-panel.tsx",
+  "demo_video_url": "https://www.youtube.com/watch?v=ANXR1RjOAjA"
+}
