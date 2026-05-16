@@ -1,7 +1,7 @@
 /**
  * Shared display helpers for the AgentBet UI.
- * Everything on-chain is native A0GI on the 0G Galileo Testnet (chain 16602).
- * 1 game-cent = 10^14 wei = 0.0001 A0GI.
+ * Everything on-chain is CHIP (ERC20) on the 0G Galileo Testnet (chain 16602).
+ * CHIP has 18 decimals. 1 game-cent = 0.01 CHIP.
  */
 
 export const ZG_CHAIN_ID = 16602
@@ -10,34 +10,34 @@ export const ZG_RPC_URL =
 export const ZG_EXPLORER =
   process.env.NEXT_PUBLIC_ZG_EXPLORER || "https://chainscan-galileo.0g.ai"
 
-export const TOKEN_SYMBOL = "A0GI"
+export const TOKEN_SYMBOL = "CHIP"
 export const TOKEN_DECIMALS = 18
 
 /**
- * Internal "cents" → display token string.
- * The game engine uses `cents` (100 cents = 1 unit of display).
- * 1 game-cent = 0.0001 A0GI. So "5000 cents" → "0.50 A0GI".
+ * Internal "cents" → display CHIP string.
+ * The game engine uses `cents` (100 cents = 1 CHIP).
+ * So "5000 cents" → "50 CHIP".
  */
 export function formatChip(cents: number, opts?: { symbol?: boolean; decimals?: number }): string {
-  const decimals = opts?.decimals ?? 4
-  const value = (cents / 10000).toFixed(decimals)
+  const decimals = opts?.decimals ?? 0
+  const value = (cents / 100).toFixed(decimals)
   return opts?.symbol === false ? value : `${value} ${TOKEN_SYMBOL}`
 }
 
 /**
- * Short variant without the ticker symbol. Use when the column header already
- * says "A0GI" to avoid doubling up.
+ * Short variant without the ticker symbol.
  */
-export function formatChipBare(cents: number, decimals = 4): string {
-  return (cents / 10000).toFixed(decimals)
+export function formatChipBare(cents: number, decimals = 0): string {
+  return (cents / 100).toFixed(decimals)
 }
 
-/** Wei → display A0GI string. */
-export function formatWei(wei: bigint | string | number, decimals = 4): string {
+/** Wei → display CHIP string. */
+export function formatWei(wei: bigint | string | number, decimals = 0): string {
   const n = typeof wei === "bigint" ? wei : BigInt(wei)
   const whole = n / BigInt(10 ** TOKEN_DECIMALS)
   const frac = n % BigInt(10 ** TOKEN_DECIMALS)
   const fracStr = frac.toString().padStart(TOKEN_DECIMALS, "0").slice(0, decimals)
+  if (decimals === 0) return `${whole} ${TOKEN_SYMBOL}`
   return `${whole}.${fracStr} ${TOKEN_SYMBOL}`
 }
 

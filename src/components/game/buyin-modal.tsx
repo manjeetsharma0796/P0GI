@@ -112,7 +112,7 @@ export function BuyInModal({
           <div className="ml-auto flex flex-col items-end">
             <span className="text-[11px] text-[#555] uppercase tracking-wide">Available</span>
             <span className="font-mono text-sm text-white">
-              {(usdcBalance / 100).toFixed(2)} CHIP
+              {Math.floor(usdcBalance / 100)} CHIP
             </span>
           </div>
         </div>
@@ -188,7 +188,7 @@ export function BuyInModal({
                   className="text-[40px] font-bold font-mono"
                   style={{ color: agentColor }}
                 >
-                  {(amount / 100).toFixed(2)} CHIP
+                  {Math.floor(amount / 100)} CHIP
                 </span>
                 <span className="text-xs text-[#555]">Buy-in amount</span>
               </div>
@@ -211,10 +211,10 @@ export function BuyInModal({
                 {/* Min / Max labels */}
                 <div className="flex justify-between">
                   <span className="text-[11px] font-mono text-[#555]">
-                    {(minBuyCents / 100).toFixed(2)}
+                    {Math.floor(minBuyCents / 100)}
                   </span>
                   <span className="text-[11px] font-mono text-[#555]">
-                    {(usdcBalance / 100).toFixed(2)}
+                    {Math.floor(usdcBalance / 100)}
                   </span>
                 </div>
               </div>

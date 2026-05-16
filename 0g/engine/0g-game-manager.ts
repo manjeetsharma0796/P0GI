@@ -41,7 +41,7 @@ import {
 // To enable: import and initialize the broker in startGame().
 
 // ── Shared utilities ────────────────────────────────────────────────────────
-import { log, logTx, clearLogs, printLogPaths } from "../../modules/engine/logger"
+import { log, logTx, clearLogs, printLogPaths } from "./logger"
 
 // ─── Config ─────────────────────────────────────────────────────────────────
 

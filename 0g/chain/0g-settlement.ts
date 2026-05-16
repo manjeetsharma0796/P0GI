@@ -1,15 +1,13 @@
 /**
- * 0g-settlement.ts -- Drop-in replacement for modules/chain/settlement.ts
- * using 0G Chain native tokens instead of Initia uchip.
+ * 0g-settlement.ts -- ERC20 CHIP token settlement on 0G Chain.
  *
- * Unit mapping:
- *   game world uses "cents" (100 cents = 1 "game dollar")
- *   0G native token has 18 decimals (like ETH)
- *   1 game-cent  = 0.0001 0G = 10^14 wei
- *   1 game-dollar = 0.01 0G
- *   An agent with 0.1 0G has $10 game-dollars = 1000 cents
+ * Unit mapping (CHIP has 18 decimals, same as ETH):
+ *   game world uses "cents" (100 cents = 1 CHIP)
+ *   1 game-cent  = 10^16 wei (0.01 CHIP)
+ *   1 game-dollar = 10^18 wei (1 CHIP)
+ *   An agent with 1000 CHIP has $1000 game-dollars = 100,000 cents
  *
- * Exports mirror modules/chain/settlement.ts so game-manager can swap imports.
+ * Exports mirror the same interface so game-manager can swap imports.
  */
 
 import { ethers } from "ethers";
@@ -26,10 +24,18 @@ const TESTNET_RPC = "https://evmrpc-testnet.0g.ai";
 const CHAIN_ID = 16602;
 const TESTNET_EXPLORER = "https://chainscan-galileo.0g.ai";
 
-/** 1 game-cent = 10^14 wei = 0.0001 0G */
-const WEI_PER_CENT = BigInt("100000000000000"); // 10^14
+/** 1 game-cent = 10^16 wei = 0.01 CHIP */
+const WEI_PER_CENT = BigInt("10000000000000000"); // 10^16
 
 const AGENT_NAMES: readonly AgentName[] = ["Llama", "Mistral", "Nemotron", "Qwen"];
+
+/** Minimal ERC20 ABI for transfer + balanceOf */
+const ERC20_ABI = [
+  "function transfer(address to, uint256 value) external returns (bool)",
+  "function balanceOf(address account) external view returns (uint256)",
+  "function symbol() external view returns (string)",
+  "function decimals() external view returns (uint8)",
+] as const;
 
 // ---------------------------------------------------------------------------
 // Unit conversion helpers (exported for testing)
@@ -72,7 +78,7 @@ function getPrivateKeyForAddress(address: string): string {
 }
 
 // ---------------------------------------------------------------------------
-// Provider / Signer
+// Provider / Signer / Token Contract
 // ---------------------------------------------------------------------------
 
 let _provider: ethers.JsonRpcProvider | null = null;
@@ -90,14 +96,22 @@ function getSigner(address: string): ethers.Wallet {
   return new ethers.Wallet(pk, getProvider());
 }
 
+function getChipTokenAddress(): string {
+  const addr = process.env.ZG_CHIP_TOKEN_ADDRESS;
+  if (!addr) throw new Error("ZG_CHIP_TOKEN_ADDRESS not set in env");
+  return addr;
+}
+
+function getChipContract(signerOrProvider: ethers.Wallet | ethers.JsonRpcProvider): ethers.Contract {
+  return new ethers.Contract(getChipTokenAddress(), ERC20_ABI, signerOrProvider);
+}
+
 // ---------------------------------------------------------------------------
-// Exported API -- same signatures as modules/chain/settlement.ts
+// Exported API -- same signatures as before
 // ---------------------------------------------------------------------------
 
 /**
- * Load agent wallets from wallets.json and return them in the format
- * game-manager expects. _startingBalance is accepted for signature
- * compatibility but not used (balances come from on-chain state).
+ * Load agent wallets from wallets.json.
  */
 export async function setupAllWallets(
   agentNames: AgentName[],
@@ -130,12 +144,12 @@ export function getPotAddress(): string {
 }
 
 /**
- * Query on-chain 0G balance and return it in game-cents.
+ * Query CHIP token balance and return it in game-cents.
  */
 export async function getBalance(address: string): Promise<number> {
   try {
-    const provider = getProvider();
-    const wei = await provider.getBalance(address);
+    const chip = getChipContract(getProvider());
+    const wei: bigint = await chip.balanceOf(address);
     return weiToCents(wei);
   } catch (err) {
     console.error(`[0g-settlement] getBalance failed for ${address}:`, (err as Error).message);
@@ -144,15 +158,14 @@ export async function getBalance(address: string): Promise<number> {
 }
 
 /**
- * Alias for getBalance -- kept for call-site compatibility with the
- * original USDC-based settlement layer.
+ * Alias for getBalance -- kept for call-site compatibility.
  */
 export async function getUsdcBalanceCents(address: string): Promise<number> {
   return getBalance(address);
 }
 
 /**
- * Transfer native 0G from one agent/pot wallet to another.
+ * Transfer CHIP tokens from one agent/pot wallet to another.
  * Returns the on-chain transaction hash.
  */
 export async function settleBet(
@@ -161,14 +174,15 @@ export async function settleBet(
   amountCents: number,
 ): Promise<TxHash> {
   const signer = getSigner(fromAddress);
+  const chip = getChipContract(signer);
   const value = centsToWei(amountCents);
 
   console.log(
-    `[0g-settlement] settleBet: ${fromAddress.slice(0, 10)}... -> ${toAddress.slice(0, 10)}... | ${amountCents} cents (${ethers.formatEther(value)} 0G)`,
+    `[0g-settlement] settleBet: ${fromAddress.slice(0, 10)}... -> ${toAddress.slice(0, 10)}... | ${amountCents} cents (${ethers.formatEther(value)} CHIP)`,
   );
 
   try {
-    const tx = await signer.sendTransaction({ to: toAddress, value });
+    const tx = await chip.transfer(toAddress, value);
     const receipt = await tx.wait(1);
     console.log(`[0g-settlement] settleBet confirmed: ${receipt!.hash}`);
     return receipt!.hash;
