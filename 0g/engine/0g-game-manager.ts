@@ -54,7 +54,8 @@ function sleep(ms: number) {
 }
 
 function usd(cents: number): string {
-  return `$${(cents / 100).toFixed(2)}`
+  const chip = cents / 100
+  return chip % 1 === 0 ? `${chip} CHIP` : `${chip.toFixed(2)} CHIP`
 }
 
 // ─── Types ──────────────────────────────────────────────────────────────────
@@ -574,7 +575,7 @@ export function createGameManager(): ZgGameManager {
                   type: "action", handNumber, txHash,
                   agentName: loser.name as AgentName,
                   message: "settlement_complete",
-                  action: { action: "call", amount, message: `${loser.name} -> ${winner.name}: ${usd(amount)} 0G | ${txUrl}` },
+                  action: { action: "call", amount, message: `${loser.name} -> ${winner.name}: ${usd(amount)} CHIP | ${txUrl}` },
                 })
               } catch (e: any) {
                 logTx({ hand: handNumber, from: fromAddr, fromAgent: loser.name, to: toAddr, toAgent: winner.name, amount, status: "failed", mode, error: e.message?.slice(0, 80) })

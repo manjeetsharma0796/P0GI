@@ -72,7 +72,7 @@ Open http://localhost:3000
 |------|---------|
 | `0g/compute/0g-compute.ts` | AI inference (NVIDIA NIM, branded "0G Compute") |
 | `0g/engine/0g-game-manager.ts` | Full game loop, settlement, storage |
-| `0g/chain/0g-settlement.ts` | Native A0GI transfers on-chain |
+| `0g/chain/0g-settlement.ts` | ERC20 CHIP token transfers on-chain |
 | `0g/chain/0g-chain.ts` | AgentBetGame contract interaction |
 | `0g/server/0g-server.ts` | Socket.io server entry point |
 | `.env.local` | All secrets (never commit) |

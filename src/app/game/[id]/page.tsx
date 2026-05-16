@@ -619,7 +619,7 @@ export default function GamePage() {
                     {msg.text.split("\n").map((line, j) =>
                       line.startsWith("🔗 http") ? (
                         <a key={j} href={line.replace("🔗 ", "")} target="_blank" rel="noopener noreferrer" className="text-[#76b900] hover:underline block">
-                          🔗 Etherscan ↗
+                          🔗 0G Explorer ↗
                         </a>
                       ) : <span key={j}>{line}{j < msg.text.split("\n").length - 1 ? "\n" : ""}</span>
                     )}

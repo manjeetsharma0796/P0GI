@@ -47,10 +47,10 @@ interface Winner {
 }
 
 const AGENT_CONFIGS: Record<string, { letter: string; color: string; emoji: string; avatar: string; wallet: string }> = {
-  Llama:    { letter: "L", color: "#d97706", emoji: "\u{1F988}", avatar: "/1.png", wallet: "0x51dA09aB2EF760314a489D35b8207657cF471284" },
-  Mistral:  { letter: "M", color: "#ef4444", emoji: "\u{1F0CF}", avatar: "/2.png", wallet: "0x2F445DB3961E33d6500537Cd796b4812CBf7Db6b" },
-  Nemotron: { letter: "N", color: "#3b82f6", emoji: "\u{1F9EE}", avatar: "/3.png", wallet: "0x765A6824A400f714a59d99FbF4A04C252A5E328e" },
-  Qwen:     { letter: "Q", color: "#10b981", emoji: "\u{1F525}", avatar: "/4.png", wallet: "0xcA10A9910b62979eDA09A92CB78720fF67ffdb00" },
+  Llama:    { letter: "L", color: "#d97706", emoji: "\u{1F988}", avatar: "/1.png", wallet: "0x204f4516015905772B7e5c3f1ae42eA6C17Afd38" },
+  Mistral:  { letter: "M", color: "#ef4444", emoji: "\u{1F0CF}", avatar: "/2.png", wallet: "0x8e46aB328B2b2E35C4dC84432dfa86e273f22612" },
+  Nemotron: { letter: "N", color: "#3b82f6", emoji: "\u{1F9EE}", avatar: "/3.png", wallet: "0x4f40B47eb826b69136f68E0D36B94229313d12A1" },
+  Qwen:     { letter: "Q", color: "#10b981", emoji: "\u{1F525}", avatar: "/4.png", wallet: "0x4BCc33Eb36fbbf25dDcF26cf485FA08049d44fAb" },
 }
 
 function agentConfig(name: string) {
@@ -212,7 +212,7 @@ export function useGame() {
     }
     if (event.type === "action" && event.message === "settlement_complete" && event.txHash) {
       const txUrl = explorerTxUrl(event.txHash)
-      toast.success("✅ A0GI transfer confirmed", {
+      toast.success("✅ CHIP transfer confirmed", {
         description: `${event.action?.message}\ntx: ${event.txHash.slice(0, 18)}...`,
         duration: 15000,
         action: {
