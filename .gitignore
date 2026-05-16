@@ -1,0 +1,17 @@
+.env.local
+.env*.local
+node_modules/
+.next/
+.turbo/
+dist/
+.bun/
+*.log
+data/
+.playwright-mcp/
+move/build/
+lz4-1.9.4/
+
+# 0G chain build artifacts
+0g/chain/artifacts/
+0g/chain/cache/
+0g/chain/node_modules/
