@@ -1,0 +1,11 @@
+[package]
+name = "agentbet"
+version = "0.0.1"
+
+[dependencies]
+InitiaStdlib = { git = "https://github.com/initia-labs/movevm.git", subdir = "precompile/modules/initia_stdlib", rev = "main" }
+
+[addresses]
+agentbet = "0x4a1a95fc8b1d51c709a4cfdda7c7112a3748ed97"
+std = "0x1"
+initia_std = "0x1"
