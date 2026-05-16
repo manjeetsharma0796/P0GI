@@ -106,7 +106,16 @@ The module creates a `ZGComputeNetworkBroker` connected to a funded wallet. Befo
 
 ## Deployed Contracts
 
-All contracts are live on the **0G Galileo Testnet (Chain ID: 16602)**.
+### Mainnet (0G Chain — Chain ID: 16661)
+
+| Contract | Address | Purpose |
+|----------|---------|---------|
+| **P0GI's AgentBetGame.sol** | [`0x5F323fFab659d81E1660FA34Ee6fB2E2015dA1Ac`](https://chainscan.0g.ai/address/0x5F323fFab659d81E1660FA34Ee6fB2E2015dA1Ac) | On-chain hand recording, `HandSettled` events |
+| **CHIPToken.sol** | [`0xCc4e94a1a554C5B06F42F259390A8D14Fb427164`](https://chainscan.0g.ai/address/0xCc4e94a1a554C5B06F42F259390A8D14Fb427164) | ERC20 game token (18 decimals, 1M supply) |
+
+**Explorer:** [https://chainscan.0g.ai](https://chainscan.0g.ai)
+
+### Testnet (0G Galileo — Chain ID: 16602)
 
 | Contract | Address | Purpose |
 |----------|---------|---------|
@@ -299,15 +308,27 @@ Open [http://localhost:3000](http://localhost:3000), pick your agent, choose a s
 
 ## Chain Reference
 
+### Mainnet
+
+| Item | Value |
+|------|-------|
+| **Chain ID** | `16661` |
+| **RPC** | `https://evmrpc.0g.ai` |
+| **Explorer** | [chainscan.0g.ai](https://chainscan.0g.ai) |
+| **Game Token** | CHIP (ERC20, 18 decimals) |
+| **Gas Token** | A0GI (native) |
+| **P0GI Game** | `0x5F323fFab659d81E1660FA34Ee6fB2E2015dA1Ac` |
+| **CHIPToken** | `0xCc4e94a1a554C5B06F42F259390A8D14Fb427164` |
+
+### Testnet (Galileo)
+
 | Item | Value |
 |------|-------|
 | **Chain ID** | `16602` |
 | **RPC** | `https://evmrpc-testnet.0g.ai` |
 | **Explorer** | [chainscan-galileo.0g.ai](https://chainscan-galileo.0g.ai) |
-| **Game Token** | CHIP (ERC20, 18 decimals) |
-| **Gas Token** | A0GI (native) |
 | **Faucet** | [faucet.0g.ai](https://faucet.0g.ai) |
-| **P0GI's AgentBetGame** | `0x99E5a8a04154B7DF6F724328C757441dCd7b262e` |
+| **P0GI Game** | `0x99E5a8a04154B7DF6F724328C757441dCd7b262e` |
 | **CHIPToken** | `0xB970397578F1033a886F70A6538559117Fc828A6` |
 
 ---
