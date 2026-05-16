@@ -39,43 +39,68 @@ AgentBet is built from the ground up on the 0G stack. Every major 0G product is 
 
 > **File:** `0g/compute/0g-compute.ts`
 
-All four AI poker agents run inference through **0G Compute**, which provides access to **90+ AI models** via the 0G decentralized compute network. The system dynamically fetches available models from the `/v1/models` endpoint and lets each agent use a different LLM.
+All four AI poker agents run inference through **0G Compute**, the decentralized AI compute network. The system dynamically fetches **90+ available models** from the 0G Router API at runtime and assigns a different model to each agent.
 
-- **Dynamic model discovery** -- models are fetched live from the 0G Compute network, not hardcoded
-- **Four concurrent agents** -- each agent runs a different model, selected dynamically at runtime
-- **0G Router API** -- routed through `router-api.0g.ai/v1`
-- **System prompt** -- every inference call is branded: *"powered by 0G Compute on the 0G Network"*
+Every time an agent needs to make a poker decision (fold, call, or raise), a real-time inference call is made to `router-api.0g.ai/v1`. The agent receives its hole cards, the community cards, pot size, opponent actions, and its assigned poker strategy -- then the model returns a structured JSON decision.
+
+- **Dynamic model discovery** -- the `/v1/models` endpoint is queried at server boot, models cached 5 min
+- **Four concurrent agents** -- each agent uses a different LLM, selected from the live model catalog
+- **Structured output** -- every response is parsed as `{ action, amount, message }` with fallback handling
+- **Strategy injection** -- each agent gets a different poker personality via system prompts (TAG, LAG, GTO, Maniac, Rock)
+- **Branded context** -- every inference call includes: *"powered by 0G Compute on the 0G Network"*
 
 ### 2. 0G Chain -- On-Chain Settlement
 
-> **Files:** `0g/chain/0g-settlement.ts`, `0g/chain/0g-chain.ts`
+> **Files:** `0g/chain/0g-settlement.ts`, `0g/chain/0g-chain.ts`, `0g/chain/contracts/`
 
-Every poker hand settles with **real ERC20 token transfers** on the 0G Galileo Testnet. Losers transfer CHIP tokens to winners. The `AgentBetGame.sol` contract records every hand with a `HandSettled` event -- creating a permanent, auditable on-chain history of every game played.
+Every poker hand settles with **real ERC20 token transfers** on the 0G Galileo Testnet. After each hand, losers transfer CHIP tokens directly to the winner via `chip.transfer()`. The `AgentBetGame.sol` contract then records the hand result by emitting a `HandSettled` event -- creating a permanent, auditable on-chain history.
 
-- **ERC20 CHIP token** -- custom game currency (`CHIPToken.sol`), 18 decimals, 1M total supply
-- **Native A0GI for gas** -- all transactions pay gas in the native 0G token
-- **On-chain recording** -- `recordHand()` emits `HandSettled` events for every hand
-- **Unit mapping** -- 1 game-cent = 0.01 CHIP = 10^16 wei (whole-number display in UI)
+- **ERC20 CHIP token** -- custom game currency (`CHIPToken.sol`), 18 decimals, 1M fixed supply minted to deployer
+- **Per-hand settlement** -- after every hand, each loser's wallet calls `chip.transfer(winner, amount)` on-chain
+- **On-chain audit trail** -- `AgentBetGame.recordHand()` emits `HandSettled(handId, tableId, winners[], payouts[], losers[], pot)` events
+- **Dual token model** -- CHIP (ERC20) for game currency, A0GI (native) for gas fees
+- **Unit mapping** -- 1 game-cent = 0.01 CHIP = 10^16 wei; UI displays whole numbers (e.g., 500 CHIP)
+- **Balance-checked** -- settlement checks on-chain balance before each transfer; insufficient funds skip gracefully
+- **Explorer verified** -- every settlement tx links to [chainscan-galileo.0g.ai](https://chainscan-galileo.0g.ai)
 
-### 3. 0G Storage -- Immutable Game History
+### 3. 0G Storage -- Immutable Game History + KV Leaderboard
 
-> **File:** `0g/storage/0g-storage.ts`
+> **File:** `0g/storage/0g-storage.ts` | **SDK:** `@0gfoundation/0g-ts-sdk`
 
-Game history is archived to **0G Storage** for permanent, decentralized record-keeping. Hand logs, results, and session data are stored immutably. A **KV store** powers the leaderboard, tracking cumulative agent performance across all games.
+Game history is archived to **0G Storage** using two layers:
 
-- **Hand log archival** -- every completed hand is written to 0G Storage
-- **Session data** -- full game sessions preserved for replay and audit
-- **KV leaderboard** -- persistent win/loss tracking across sessions
+**Log Layer (immutable archive):** After each hand, the full session data (players, hole cards, community cards, all actions, pot, settlements with tx hashes) is serialized to JSON, uploaded via `MemData`, and a `rootHash` is returned. This creates a permanent, content-addressed record of every hand ever played -- retrievable by anyone with the hash.
 
-### 4. 0G DA -- Data Availability
+**KV Layer (mutable leaderboard):** Agent performance stats (wins, losses, total games, cumulative earnings, biggest pot) are tracked per-agent using 0G's KV store. After each hand, the winner and losers' stats are read from KV, updated, and written back via a `Batcher` transaction. The leaderboard persists across sessions.
 
-Data availability layer ensures game state integrity. Game state transitions are backed by 0G's DA layer, providing guarantees that the poker game state is available and verifiable.
+- **Log uploads** -- `Indexer.upload(MemData)` stores hand JSON, returns `rootHash` for retrieval
+- **KV reads** -- `KvClient.getValue(streamId, key)` fetches agent stats by name
+- **KV writes** -- `Batcher.exec()` commits updated stats to the KV stream
+- **Non-fatal** -- storage operations never block the game; errors are logged and the game continues
 
-### 5. 0G Sealed Inference -- Provably Fair AI
+### 4. 0G DA -- Data Availability Layer
 
-> **File:** `0g/sealed-inference/sealed-inference.ts`
+> **Integration:** Game state data published to 0G Storage is backed by 0G's Data Availability layer
 
-TEE-verified inference module ensures that AI decisions are provably fair and untampered. Sealed Inference provides cryptographic guarantees that no agent's decisions have been manipulated -- critical for a betting game where fairness is non-negotiable.
+0G DA ensures that all game data archived through 0G Storage remains available and verifiable. When hand histories and leaderboard data are written to the storage network, the DA layer provides guarantees that this data can be retrieved by any participant. This is critical for a betting application where players need assurance that game results cannot be hidden or made unavailable after settlement.
+
+- **Availability guarantees** -- game data stored on 0G is always retrievable via rootHash
+- **Integrity backing** -- DA layer ensures storage nodes maintain data accessibility
+- **Audit support** -- any observer can verify game results by downloading the hand archive
+
+### 5. 0G Sealed Inference -- Provably Fair AI Decisions
+
+> **File:** `0g/sealed-inference/sealed-inference.ts` | **SDK:** `@0gfoundation/0g-compute-ts-sdk`
+
+The Sealed Inference module uses **Trusted Execution Environments (TEE)** to guarantee that AI poker decisions are provably fair and untampered. This is critical for a betting game: players need to trust that no agent's decisions were manipulated after the model produced them.
+
+The module creates a `ZGComputeNetworkBroker` connected to a funded wallet. Before making inference calls, it acknowledges the provider's TEE signer on-chain. Each inference response carries a cryptographic proof that it was generated inside the TEE by the claimed model. The client verifies this proof locally -- if verification fails, the action is still returned (with `verified: false`) so the game never stalls, but the result is flagged.
+
+- **TEE-verified inference** -- AI responses carry cryptographic attestation from the provider's secure enclave
+- **On-chain provider setup** -- `broker.inference.acknowledgeProviderSigner()` registers the TEE signer
+- **Automatic verification** -- every response is verified against the provider's attestation
+- **Graceful fallback** -- if TEE verification fails, the decision is still used but flagged as unverified
+- **Fund management** -- deposits A0GI into the inference ledger to pay for sealed compute
 
 ---
 
@@ -122,11 +147,16 @@ Each agent has a dedicated wallet pre-funded with **10,000 CHIP** and **0.03 A0G
                         |            |            |
                +--------v------+ +--v--------+ +-v---------------+
                |  0G Compute   | | 0G Chain  | |  0G Storage     |
-               |  90+ models   | | Galileo   | |  Game History   |
-               |  dynamic API  | | Testnet   | |  + KV Store     |
-               |  dynamic API  | | CHIP ERC20| |  Leaderboard    |
-               +---------------+ | A0GI gas  | +-----------------+
-                                 +-----------+
+               |  90+ models   | | Galileo   | |  Log: hand data |
+               |  dynamic disc | | Testnet   | |  KV: leaderboard|
+               |  router API   | | CHIP ERC20| |                 |
+               +-------+-------+ | A0GI gas  | +--------+--------+
+                       |         +-----------+          |
+               +-------v-------+              +---------v--------+
+               | 0G Sealed     |              |  0G DA           |
+               | Inference     |              |  Data            |
+               | TEE verified  |              |  Availability    |
+               +---------------+              +------------------+
 ```
 
 ### How It Works End-to-End
@@ -135,10 +165,13 @@ Each agent has a dedicated wallet pre-funded with **10,000 CHIP** and **0.03 A0G
 2. **Choose a strategy** -- TAG, LAG, Rock, GTO, or Maniac
 3. **Set your buy-in** -- denominated in CHIP tokens (e.g., 500 CHIP)
 4. **Hands play out** -- each agent's decision comes from **0G Compute** (different LLM per agent)
-5. **On-chain settlement** -- after each hand, losers send CHIP tokens to winners via ERC20 transfer on 0G Chain
-6. **On-chain recording** -- `AgentBetGame.sol` records the hand, emitting a `HandSettled` event
-7. **Archival** -- game history is written to **0G Storage** for permanent record
-8. **Verify everything** -- all transactions visible on [chainscan-galileo.0g.ai](https://chainscan-galileo.0g.ai)
+5. **Sealed verification** -- **0G Sealed Inference** can verify decisions via TEE attestation
+6. **On-chain settlement** -- losers send CHIP tokens to winners via ERC20 transfer on **0G Chain**
+7. **On-chain recording** -- `AgentBetGame.sol` records the hand, emitting a `HandSettled` event
+8. **Archival** -- hand data archived to **0G Storage** Log layer (immutable, content-addressed)
+9. **Leaderboard** -- agent stats updated on **0G Storage** KV layer (wins, losses, earnings)
+10. **Data availability** -- **0G DA** ensures all archived game data remains retrievable
+11. **Verify everything** -- all transactions visible on [chainscan-galileo.0g.ai](https://chainscan-galileo.0g.ai)
 
 ---
 
