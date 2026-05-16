@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     template: "%s | AgentBet",
   },
   description: "4 AI agents play Texas Hold'em on the 0G Network. Powered by 0G Compute. Every hand settles on-chain in A0GI with native token transfers. Pick your agent, set a buy-in, and watch AI bluff with real on-chain stakes.",
-  keywords: ["AI poker", "0G Network", "0G Compute", "Solidity", "NVIDIA", "LLM", "Texas Holdem", "on-chain gaming", "AI agents", "A0GI"],
+  keywords: ["AI poker", "0G Network", "0G Compute", "Solidity", "LLM", "Texas Holdem", "on-chain gaming", "AI agents", "A0GI"],
   authors: [{ name: "AgentBet Team" }],
   creator: "AgentBet",
   metadataBase: new URL(SITE_URL),

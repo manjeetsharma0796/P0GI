@@ -5,7 +5,6 @@
 [![0G Network](https://img.shields.io/badge/0G-Galileo%20Testnet-00D4AA?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiPjxjaXJjbGUgY3g9IjEyIiBjeT0iMTIiIHI9IjEwIiBmaWxsPSIjMDBENEFBIi8+PC9zdmc+)](https://0g.ai)
 [![0G Compute](https://img.shields.io/badge/0G%20Compute-AI%20Inference-7C3AED?style=for-the-badge)](https://0g.ai)
 [![Solidity](https://img.shields.io/badge/Solidity-0.8.19-363636?style=for-the-badge&logo=solidity&logoColor=white)](https://soliditylang.org)
-[![NVIDIA NIM](https://img.shields.io/badge/NVIDIA-NIM%2090%2B%20Models-76B900?style=for-the-badge&logo=nvidia&logoColor=white)](https://build.nvidia.com)
 [![Bun](https://img.shields.io/badge/Bun-Runtime-F9F1E1?style=for-the-badge&logo=bun&logoColor=black)](https://bun.sh)
 
 > **0G APAC Hackathon Submission** | Built on 0G Compute, 0G Chain, 0G Storage, 0G DA, and 0G Sealed Inference
@@ -20,7 +19,7 @@ You pick an agent, choose a poker strategy, set a buy-in in CHIP tokens, and wat
 
 ```
 User picks Mistral as their agent
-  -> Mistral uses Aggressive strategy (powered by Mistral Small 4 via 0G Compute)
+  -> Mistral uses Aggressive strategy (powered by 0G Compute)
   -> Buy-in: 500 CHIP tokens
   -> Plays vs Llama, Nemotron, Qwen (each using a different LLM)
   -> Hand plays out -> 0G Compute returns each agent's decision
@@ -40,11 +39,11 @@ AgentBet is built from the ground up on the 0G stack. Every major 0G product is 
 
 > **File:** `0g/compute/0g-compute.ts`
 
-All four AI poker agents run inference through **0G Compute**, which provides access to **NVIDIA NIM** under the hood. The system dynamically fetches **90+ available models** from the `/v1/models` endpoint and lets each agent use a different LLM.
+All four AI poker agents run inference through **0G Compute**, which provides access to **90+ AI models** via the 0G decentralized compute network. The system dynamically fetches available models from the `/v1/models` endpoint and lets each agent use a different LLM.
 
 - **Dynamic model discovery** -- models are fetched live from the 0G Compute network, not hardcoded
-- **Four concurrent agents** -- each agent runs a different model (Llama 3.3 70B, Mistral Small 4 119B, Nemotron Super 49B, Qwen variants)
-- **OpenAI-compatible API** -- routed through `router-api.0g.ai/v1`
+- **Four concurrent agents** -- each agent runs a different model, selected dynamically at runtime
+- **0G Router API** -- routed through `router-api.0g.ai/v1`
 - **System prompt** -- every inference call is branded: *"powered by 0G Compute on the 0G Network"*
 
 ### 2. 0G Chain -- On-Chain Settlement
@@ -97,13 +96,13 @@ All contracts are live on the **0G Galileo Testnet (Chain ID: 16602)**.
 
 Each agent has a dedicated wallet pre-funded with **10,000 CHIP** and **0.03 A0GI** for gas.
 
-| Agent | Model | Wallet Address |
-|-------|-------|----------------|
-| **Llama** | Llama 3.3 70B Instruct | [`0x204f4516015905772B7e5c3f1ae42eA6C17Afd38`](https://chainscan-galileo.0g.ai/address/0x204f4516015905772B7e5c3f1ae42eA6C17Afd38) |
-| **Mistral** | Mistral Small 4 119B | [`0x8e46aB328B2b2E35C4dC84432dfa86e273f22612`](https://chainscan-galileo.0g.ai/address/0x8e46aB328B2b2E35C4dC84432dfa86e273f22612) |
-| **Nemotron** | Nemotron Super 49B | [`0x4f40B47eb826b69136f68E0D36B94229313d12A1`](https://chainscan-galileo.0g.ai/address/0x4f40B47eb826b69136f68E0D36B94229313d12A1) |
-| **Qwen** | Llama 3.1 70B Instruct | [`0x4BCc33Eb36fbbf25dDcF26cf485FA08049d44fAb`](https://chainscan-galileo.0g.ai/address/0x4BCc33Eb36fbbf25dDcF26cf485FA08049d44fAb) |
-| **Gas Station** | -- | [`0xc3074592310f548A7CC1BcB050ce49a438Aa5D45`](https://chainscan-galileo.0g.ai/address/0xc3074592310f548A7CC1BcB050ce49a438Aa5D45) |
+| Agent | Wallet Address |
+|-------|----------------|
+| **Llama** | [`0x204f4516015905772B7e5c3f1ae42eA6C17Afd38`](https://chainscan-galileo.0g.ai/address/0x204f4516015905772B7e5c3f1ae42eA6C17Afd38) |
+| **Mistral** | [`0x8e46aB328B2b2E35C4dC84432dfa86e273f22612`](https://chainscan-galileo.0g.ai/address/0x8e46aB328B2b2E35C4dC84432dfa86e273f22612) |
+| **Nemotron** | [`0x4f40B47eb826b69136f68E0D36B94229313d12A1`](https://chainscan-galileo.0g.ai/address/0x4f40B47eb826b69136f68E0D36B94229313d12A1) |
+| **Qwen** | [`0x4BCc33Eb36fbbf25dDcF26cf485FA08049d44fAb`](https://chainscan-galileo.0g.ai/address/0x4BCc33Eb36fbbf25dDcF26cf485FA08049d44fAb) |
+| **Gas Station** | [`0xc3074592310f548A7CC1BcB050ce49a438Aa5D45`](https://chainscan-galileo.0g.ai/address/0xc3074592310f548A7CC1BcB050ce49a438Aa5D45) |
 
 ---
 
@@ -123,8 +122,8 @@ Each agent has a dedicated wallet pre-funded with **10,000 CHIP** and **0.03 A0G
                         |            |            |
                +--------v------+ +--v--------+ +-v---------------+
                |  0G Compute   | | 0G Chain  | |  0G Storage     |
-               |  NVIDIA NIM   | | Galileo   | |  Game History   |
-               |  90+ models   | | Testnet   | |  + KV Store     |
+               |  90+ models   | | Galileo   | |  Game History   |
+               |  dynamic API  | | Testnet   | |  + KV Store     |
                |  dynamic API  | | CHIP ERC20| |  Leaderboard    |
                +---------------+ | A0GI gas  | +-----------------+
                                  +-----------+
@@ -150,14 +149,14 @@ Each agent has a dedicated wallet pre-funded with **10,000 CHIP** and **0.03 A0G
 | **Runtime** | Bun |
 | **Frontend** | Next.js 16 + React 19 + Tailwind CSS 4 |
 | **Backend** | Bun server + Socket.io |
-| **AI Inference** | 0G Compute (NVIDIA NIM, 90+ models, dynamic discovery) |
+| **AI Inference** | 0G Compute (90+ models, dynamic discovery) |
 | **Blockchain** | 0G Galileo Testnet (Chain ID 16602) |
 | **Smart Contracts** | Solidity 0.8.19 (AgentBetGame.sol + CHIPToken.sol) |
 | **Game Token** | CHIP (ERC20, 18 decimals, 1M supply) |
 | **Gas Token** | A0GI (native) |
 | **Storage** | 0G Storage + KV Store |
 | **Poker Engine** | @chevtek/poker-engine |
-| **Tooling** | Hardhat, ethers v6, OpenAI SDK |
+| **Tooling** | Hardhat, ethers v6 |
 
 ---
 
@@ -211,7 +210,7 @@ agent-bet/
 ### Prerequisites
 
 - [Bun](https://bun.sh) -- package manager and runtime
-- An `NVIDIA_API_KEY` (free at [build.nvidia.com](https://build.nvidia.com))
+- A 0G Compute API key (from [pc.0g.ai](https://pc.0g.ai))
 - A funded wallet on 0G Galileo Testnet ([faucet.0g.ai](https://faucet.0g.ai))
 
 ### 1. Clone and Install
@@ -228,7 +227,6 @@ cd 0g/chain && bun install && cd ../..
 Copy `0g/.env.example` to `.env.local` at the project root:
 
 ```env
-NVIDIA_API_KEY=nvapi-xxxxx
 ZG_API_KEY=sk-xxxxx
 ZG_PRIVATE_KEY=your_funded_wallet_private_key
 ZG_RPC_URL=https://evmrpc-testnet.0g.ai

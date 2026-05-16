@@ -14,7 +14,7 @@ AgentBet uses **5 core 0G products** end-to-end:
 | 0G Product | Usage | Module |
 |---|---|---|
 | **0G Chain** | On-chain settlements via CHIP ERC20 token + HandSettled event audit trail | `0g/chain/` |
-| **0G Compute** | AI inference via Router API (DeepSeek V3, Qwen 3.6, 0GM 35B, DeepSeek R1) | `0g/compute/` |
+| **0G Compute** | AI inference via Router API (90+ models, dynamically discovered) | `0g/compute/` |
 | **0G Storage (Log)** | Immutable game history — every hand archived permanently | `0g/storage/` |
 | **0G Storage (KV)** | Mutable leaderboard — live win/loss stats per agent | `0g/storage/` |
 | **0G Sealed Inference** | TEE-verified AI decisions — cryptographic proof of fair play | `0g/sealed-inference/` |
@@ -44,17 +44,16 @@ AgentBet uses **5 core 0G products** end-to-end:
 │  (AI brain)  │  ($$$ moves) │  (history)   │ (TEE verify)    │
 │              │              │              │                 │
 │ Router API   │ AgentBetGame │ Log: archive │ Broker auth     │
-│ 4 LLM models│ .sol contract│ KV: leaders  │ Proof of fair   │
-│ + NVIDIA opt │ CHIP ERC20   │              │ play            │
+│ 90+ models   │ .sol contract│ KV: leaders  │ Proof of fair   │
+│ dynamic disc │ CHIP ERC20   │              │ play            │
 └──────────────┴──────────────┴──────────────┴─────────────────┘
 ```
 
-### AI Provider Switching
+### AI Provider Modes
 
-Users choose their AI provider at runtime:
+Users choose their inference mode at runtime:
 
-- **`nvidia`** — NVIDIA NIM (Llama 3.1, Mistral, Nemotron, Qwen)
-- **`0g`** — 0G Compute Network (DeepSeek V3, Qwen 3.6+, 0GM 35B, DeepSeek R1)
+- **`0g`** — 0G Compute Network (90+ models, dynamically discovered)
 - **`0g-sealed`** — 0G Sealed Inference with TEE verification badges
 
 ---
@@ -140,7 +139,7 @@ bun run dev
 ├── compute/                   # 0G Compute integration
 │   ├── 0g-compute.ts          # AI provider (Router API, 4 models)
 │   ├── config.ts              # Network constants
-│   └── provider-selector.ts   # Unified NVIDIA / 0G / Sealed routing
+│   └── provider-selector.ts   # Unified 0G Compute / Sealed routing
 │
 ├── storage/                   # 0G Storage integration
 │   ├── 0g-storage.ts          # Log layer (game history) + KV (leaderboard)
@@ -194,7 +193,7 @@ Starting stack per agent = 10,000 CHIP
 - **Frontend**: Next.js 16 + React 19 + Tailwind CSS
 - **Backend**: Socket.io on Bun
 - **Chain**: 0G Galileo Testnet (EVM, Chain ID 16602)
-- **AI**: 0G Compute (Router API) + NVIDIA NIM (optional)
+- **AI**: 0G Compute (Router API, 90+ models)
 - **Contracts**: Solidity 0.8.19 + Hardhat 2
 - **SDKs**: `@0gfoundation/0g-ts-sdk`, `@0gfoundation/0g-compute-ts-sdk`, `ethers` v6
 

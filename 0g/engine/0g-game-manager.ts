@@ -4,8 +4,8 @@
 //   - 0G Chain for on-chain settlements
 //   - 0G Storage for immutable game history + KV leaderboard
 //
-// This mirrors modules/engine/game-manager.ts but replaces Initia/NVIDIA
-// imports with their 0G equivalents. The poker engine itself is reused.
+// This mirrors modules/engine/game-manager.ts but wires in the 0G stack
+// (Compute, Chain, Storage). The poker engine itself is reused.
 
 import { createPokerEngine, AGENT_NAMES, STARTING_STACK, INITIAL_BET } from "../../modules/engine/poker"
 import type { PokerState, PokerEngine } from "../../modules/engine/poker"

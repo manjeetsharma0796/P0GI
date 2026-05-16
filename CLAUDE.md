@@ -38,7 +38,7 @@ No real money. Testnet A0GI only.
 ```
 src/app/          → Next.js frontend (UI, game page, API routes)
 0g/server/        → Socket.io game server (bun run server)
-0g/compute/       → AI inference via 0G Compute (NVIDIA NIM under the hood)
+0g/compute/       → AI inference via 0G Compute
 0g/engine/        → Game loop + hand management
 0g/chain/         → On-chain settlement (AgentBetGame.sol on 0G testnet)
 0g/storage/       → Game history logging to 0G Storage
@@ -70,7 +70,7 @@ Open http://localhost:3000
 
 | File | Purpose |
 |------|---------|
-| `0g/compute/0g-compute.ts` | AI inference (NVIDIA NIM, branded "0G Compute") |
+| `0g/compute/0g-compute.ts` | AI inference via 0G Compute |
 | `0g/engine/0g-game-manager.ts` | Full game loop, settlement, storage |
 | `0g/chain/0g-settlement.ts` | ERC20 CHIP token transfers on-chain |
 | `0g/chain/0g-chain.ts` | AgentBetGame contract interaction |
@@ -83,7 +83,7 @@ Open http://localhost:3000
 
 `.env.local` (never commit):
 ```env
-NVIDIA_API_KEY=              # NVIDIA NIM inference
+NVIDIA_API_KEY=              # 0G Compute inference API key
 ZG_API_KEY=                  # 0G Compute API key
 ZG_PRIVATE_KEY=              # Funded wallet for gas + settlement
 ZG_RPC_URL=https://evmrpc-testnet.0g.ai

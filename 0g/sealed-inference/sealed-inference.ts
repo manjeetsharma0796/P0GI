@@ -102,7 +102,7 @@ export async function setupProvider(
  * Get a TEE-verified poker action from a 0G Compute provider.
  *
  * Flow:
- * 1. Build the same poker prompt used by nvidia.ts.
+ * 1. Build the same poker prompt used by 0g-compute.ts.
  * 2. Obtain auth headers from the broker (signs the request on-chain).
  * 3. POST to the provider's OpenAI-compatible /chat/completions endpoint.
  * 4. Verify the response's TEE signature via `broker.inference.processResponse`.
@@ -130,7 +130,7 @@ export async function getSealedAgentAction(
   }
 
   try {
-    // ── 1. Build prompt (mirrors nvidia.ts logic) ──────────────────────
+    // ── 1. Build prompt (mirrors 0g-compute.ts logic) ──────────────────
     const systemPrompt = buildSystemPrompt(agent, gameState, bigBlind)
     const userPrompt = buildUserPrompt(gameState, minRaise, bigBlind)
     const messages = [
@@ -353,7 +353,7 @@ export function getVerificationBadge(verified: boolean): string {
 }
 
 // ---------------------------------------------------------------------------
-// Prompt building (mirrors nvidia.ts)
+// Prompt building (mirrors 0g-compute.ts)
 // ---------------------------------------------------------------------------
 
 function buildSystemPrompt(

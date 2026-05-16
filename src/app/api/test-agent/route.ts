@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 
-const NVIDIA_BASE_URL = "https://integrate.api.nvidia.com/v1"
+const COMPUTE_BASE_URL = "https://integrate.api.nvidia.com/v1"
 
 const PREMIUM_ENDPOINTS: Record<string, { url: string; defaultModel: string }> = {
   "gemini-2.5-flash": { url: "https://generativelanguage.googleapis.com/v1beta/openai", defaultModel: "gemini-2.5-flash" },
@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
     }
 
     const premium = PREMIUM_ENDPOINTS[modelId]
-    const baseUrl = premium ? premium.url : NVIDIA_BASE_URL
+    const baseUrl = premium ? premium.url : COMPUTE_BASE_URL
     const key = premium ? apiKey : (process.env.NVIDIA_API_KEY || apiKey)
 
     if (!key) {

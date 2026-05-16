@@ -8,16 +8,16 @@ import { toast } from "sonner"
 
 // ─── Model lists ────────────────────────────────────────────────────────────
 const FREE_MODELS = [
-  { id: "meta/llama-3.3-70b-instruct", name: "Llama 3.3", provider: "Meta", size: "70B", speed: "Fast", color: "#d97706", free: true },
-  { id: "mistralai/mistral-small-4-119b-2603", name: "Mistral Small 4", provider: "Mistral AI", size: "119B", speed: "Medium", color: "#ef4444", free: true },
-  { id: "nvidia/llama-3.3-nemotron-super-49b-v1", name: "Nemotron Super 49B", provider: "NVIDIA", size: "49B", speed: "Fast", color: "#3b82f6", free: true },
-  { id: "meta/llama-3.1-8b-instruct", name: "Llama 3.1 8B", provider: "Meta", size: "8B", speed: "Very Fast", color: "#10b981", free: true },
+  { id: "meta/llama-3.3-70b-instruct", name: "Llama", provider: "0G Compute", size: "", speed: "Strategic & Calculated", color: "#d97706", free: true },
+  { id: "mistralai/mistral-small-4-119b-2603", name: "Mistral", provider: "0G Compute", size: "", speed: "Cunning & Deceptive", color: "#ef4444", free: true },
+  { id: "nvidia/llama-3.3-nemotron-super-49b-v1", name: "Nemotron", provider: "0G Compute", size: "", speed: "Aggressive & Bold", color: "#3b82f6", free: true },
+  { id: "meta/llama-3.1-8b-instruct", name: "Qwen", provider: "0G Compute", size: "", speed: "Quick & Adaptive", color: "#10b981", free: true },
 ]
 
 const PREMIUM_MODELS = [
-  { id: "claude-sonnet-4-20250514", name: "Claude Sonnet", provider: "Anthropic", size: "-", speed: "Fast", color: "#c084fc", free: false, keyPlaceholder: "sk-ant-..." },
-  { id: "gemini-2.5-flash", name: "Gemini 2.5 Flash", provider: "Google AI", size: "-", speed: "Very Fast", color: "#60a5fa", free: false, keyPlaceholder: "AIza..." },
-  { id: "gpt-4o", name: "GPT-4o", provider: "OpenAI", size: "-", speed: "Fast", color: "#22c55e", free: false, keyPlaceholder: "sk-..." },
+  { id: "claude-sonnet-4-20250514", name: "Claude Sonnet", provider: "Premium", size: "", speed: "Strategic", color: "#c084fc", free: false, keyPlaceholder: "sk-ant-..." },
+  { id: "gemini-2.5-flash", name: "Gemini Flash", provider: "Premium", size: "", speed: "Lightning", color: "#60a5fa", free: false, keyPlaceholder: "AIza..." },
+  { id: "gpt-4o", name: "GPT-4o", provider: "Premium", size: "", speed: "Strategic", color: "#22c55e", free: false, keyPlaceholder: "sk-..." },
 ]
 
 const ALL_MODELS = [...FREE_MODELS, ...PREMIUM_MODELS]
@@ -83,7 +83,7 @@ export default function AgentsPage() {
           </div>
           <div className="flex items-center gap-2 bg-[#76b900]/10 border border-[#76b900]/20 rounded-full px-4 py-1.5">
             <div className="w-2 h-2 rounded-full bg-[#76b900] animate-pulse" />
-            <span className="text-xs font-medium text-[#76b900]">NVIDIA NIM Connected</span>
+            <span className="text-xs font-medium text-[#76b900]">0G Compute Connected</span>
           </div>
         </div>
 
@@ -129,7 +129,7 @@ export default function AgentsPage() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <h3 className="text-lg font-bold text-white">{agent.name}</h3>
-                      <p className="text-xs text-[#555]">{model?.provider ?? "NVIDIA"} &middot; {model?.speed ?? "Fast"}</p>
+                      <p className="text-xs text-[#555]">{model?.provider ?? "0G Compute"} &middot; {model?.speed ?? "Fast"}</p>
                     </div>
                   </div>
 
@@ -169,14 +169,14 @@ export default function AgentsPage() {
                           onChange={(e) => handleModelChange(e.target.value)}
                           className="w-full bg-[#060a10] border border-[#1a2236] rounded-lg h-9 px-3 text-sm text-white/80 appearance-none cursor-pointer hover:border-[#2a3a56] transition-colors outline-none font-mono text-xs"
                         >
-                          <optgroup label="Free (NVIDIA NIM)">
+                          <optgroup label="Free (0G Compute)">
                             {FREE_MODELS.map(m => (
-                              <option key={m.id} value={m.id}>{m.name} - {m.size} - {m.speed}</option>
+                              <option key={m.id} value={m.id}>{m.name} - {m.speed}</option>
                             ))}
                           </optgroup>
                           <optgroup label="Premium (Requires API Key)">
                             {PREMIUM_MODELS.map(m => (
-                              <option key={m.id} value={m.id}>{m.name} - {m.provider}</option>
+                              <option key={m.id} value={m.id}>{m.name} - Premium</option>
                             ))}
                           </optgroup>
                         </select>
@@ -255,7 +255,7 @@ export default function AgentsPage() {
           open={chatOpen}
           onClose={() => setChatOpen(false)}
           title={selectedAgent.name}
-          subtitle={ALL_MODELS.find(m => m.id === selectedAgent.modelId)?.name ?? selectedAgent.modelId}
+          subtitle="Powered by 0G Compute"
           avatarColor={selectedAgent.color}
           avatarLetter={selectedAgent.name[0]}
           modelId={selectedAgent.modelId}

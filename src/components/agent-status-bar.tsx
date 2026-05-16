@@ -5,13 +5,13 @@ import Link from "next/link"
 import { useSelectedAgent } from "@/providers/selected-agent-provider"
 
 const MODEL_NAMES: Record<string, string> = {
-  "meta/llama-3.3-70b-instruct": "Llama 3.3 70B",
-  "mistralai/mistral-small-4-119b-2603": "Mistral Small 4",
-  "nvidia/llama-3.3-nemotron-super-49b-v1": "Nemotron 49B",
-  "meta/llama-3.1-8b-instruct": "Llama 3.1 8B",
-  "claude-sonnet-4-20250514": "Claude Sonnet",
-  "gemini-2.5-flash": "Gemini 2.5 Flash",
-  "gpt-4o": "GPT-4o",
+  "meta/llama-3.3-70b-instruct": "0G Compute",
+  "mistralai/mistral-small-4-119b-2603": "0G Compute",
+  "nvidia/llama-3.3-nemotron-super-49b-v1": "0G Compute",
+  "meta/llama-3.1-8b-instruct": "0G Compute",
+  "claude-sonnet-4-20250514": "Premium Model",
+  "gemini-2.5-flash": "Premium Model",
+  "gpt-4o": "Premium Model",
 }
 
 function truncateAddress(addr: string): string {

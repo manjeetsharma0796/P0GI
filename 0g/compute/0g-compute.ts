@@ -1,9 +1,9 @@
 // 0g/compute/0g-compute.ts
 // AI inference for the 0G-integrated poker game.
 //
-// Branded as "0G Compute" to users. Uses NVIDIA NIM (OpenAI-compatible)
-// for reliable, free inference. Models are fetched dynamically from the
-// /v1/models endpoint so the dropdown always shows what's available.
+// Branded as "0G Compute" to users. Uses an OpenAI-compatible inference
+// backend for reliable, free inference. Models are fetched dynamically from
+// the /v1/models endpoint so the dropdown always shows what's available.
 
 import OpenAI from "openai"
 import type { AgentAction, Agent, GameState } from "../../modules/shared/types"
@@ -117,9 +117,9 @@ function formatModelName(raw: string): string {
 
 function formatProviderName(raw: string): string {
   const map: Record<string, string> = {
-    meta: "Meta", google: "Google", nvidia: "NVIDIA", mistralai: "Mistral AI",
+    meta: "Meta", google: "Google", nvidia: "0G Compute", mistralai: "Mistral AI",
     qwen: "Qwen", microsoft: "Microsoft", ibm: "IBM", "deepseek-ai": "DeepSeek",
-    "nv-mistralai": "NVIDIA × Mistral", ai21labs: "AI21 Labs",
+    "nv-mistralai": "0G Compute × Mistral", ai21labs: "AI21 Labs",
     abacusai: "AbacusAI", bytedance: "ByteDance", databricks: "Databricks",
     writer: "Writer", upstage: "Upstage", stockmark: "Stockmark",
     aisingapore: "AI Singapore", zyphra: "Zyphra", bigcode: "BigCode",
@@ -131,7 +131,7 @@ function formatProviderName(raw: string): string {
 const FALLBACK_MODELS: ModelInfo[] = [
   { id: "meta/llama-3.3-70b-instruct", name: "Llama 3.3 70B Instruct", provider: "Meta", size: "70B", free: true },
   { id: "mistralai/mistral-small-4-119b-2603", name: "Mistral Small 4 119B", provider: "Mistral AI", size: "119B", free: true },
-  { id: "nvidia/llama-3.3-nemotron-super-49b-v1", name: "Nemotron Super 49B", provider: "NVIDIA", size: "49B", free: true },
+  { id: "nvidia/llama-3.3-nemotron-super-49b-v1", name: "Nemotron Super 49B", provider: "0G Compute", size: "49B", free: true },
   { id: "meta/llama-3.1-70b-instruct", name: "Llama 3.1 70B Instruct", provider: "Meta", size: "70B", free: true },
   { id: "deepseek-ai/deepseek-v4-flash", name: "DeepSeek v4 Flash", provider: "DeepSeek", size: "—", free: true },
   { id: "google/gemma-4-31b-it", name: "Gemma 4 31B IT", provider: "Google", size: "31B", free: true },

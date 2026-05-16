@@ -25,7 +25,7 @@ export function getAvailableModels() {
 }
 
 /**
- * Fetch all available models dynamically from NVIDIA NIM.
+ * Fetch all available models dynamically from 0G Compute.
  * Cached for 5 minutes. Falls back to static list on error.
  */
 export async function getAvailableModelsDynamic(): Promise<ModelInfo[]> {
