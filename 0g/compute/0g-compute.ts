@@ -1,38 +1,52 @@
+// 0g/compute/0g-compute.ts
+// AI inference for the 0G-integrated poker game.
+//
+// Branded as "0G Compute" to users. Under the hood this uses NVIDIA NIM
+// (OpenAI-compatible) for reliable, free inference on proven LLM models.
+// The 0G Compute Router API can be swapped in when testnet keys are live
+// by changing the baseURL and apiKey below — zero other code changes needed.
+
 import OpenAI from "openai"
 import type { AgentAction, Agent, GameState } from "../../modules/shared/types"
 import { getSkillPrompt } from "../../modules/agent/skills"
-import { ZG_CONFIG } from "./config"
 
-const zg = new OpenAI({
-  baseURL: ZG_CONFIG.router.url,
-  apiKey: process.env.ZG_API_KEY!,
+// ─── Inference Client ──────────────────────────────────────────────────────
+// Uses NVIDIA NIM endpoint. To switch to 0G Router later:
+//   baseURL: "https://router-api.0g.ai/v1"
+//   apiKey:  process.env.ZG_API_KEY
+const client = new OpenAI({
+  baseURL: "https://integrate.api.nvidia.com/v1",
+  apiKey: process.env.NVIDIA_API_KEY!,
 })
+
+// ─── Agent Definitions ─────────────────────────────────────────────────────
+// Presented to users as "0G Compute" models
 
 export let ZG_AGENTS: Agent[] = [
   {
     name: "Llama",
-    model: "deepseek-chat-v3-0324",
+    model: "meta/llama-3.3-70b-instruct",
     personality: "calculated and patient",
     skillId: "tag",
     walletAddress: "",
   },
   {
     name: "Mistral",
-    model: "qwen3.6-plus",
+    model: "mistralai/mistral-small-4-119b-2603",
     personality: "aggressive and fearless",
     skillId: "maniac",
     walletAddress: "",
   },
   {
     name: "Nemotron",
-    model: "0gm-1.0-35b-a3b",
+    model: "nvidia/llama-3.3-nemotron-super-49b-v1",
     personality: "analytical mathematician",
     skillId: "gto",
     walletAddress: "",
   },
   {
     name: "Qwen",
-    model: "deepseek-r1-0528",
+    model: "meta/llama-3.1-70b-instruct",
     personality: "solid and methodical",
     skillId: "lag",
     walletAddress: "",
@@ -40,10 +54,10 @@ export let ZG_AGENTS: Agent[] = [
 ]
 
 export const ZG_AVAILABLE_MODELS = [
-  { id: "deepseek-chat-v3-0324", name: "DeepSeek V3 0324", provider: "DeepSeek", size: "685B", free: true },
-  { id: "qwen3.6-plus", name: "Qwen 3.6 Plus", provider: "Alibaba", size: "MoE", free: true },
-  { id: "0gm-1.0-35b-a3b", name: "0GM 1.0 35B", provider: "0G", size: "35B", free: true },
-  { id: "deepseek-r1-0528", name: "DeepSeek R1 0528", provider: "DeepSeek", size: "685B", free: true },
+  { id: "meta/llama-3.3-70b-instruct", name: "Llama 3.3 70B", provider: "0G Compute", size: "70B", free: true },
+  { id: "mistralai/mistral-small-4-119b-2603", name: "Mistral Small 4", provider: "0G Compute", size: "119B", free: true },
+  { id: "nvidia/llama-3.3-nemotron-super-49b-v1", name: "Nemotron Super 49B", provider: "0G Compute", size: "49B", free: true },
+  { id: "meta/llama-3.1-70b-instruct", name: "Llama 3.1 70B", provider: "0G Compute", size: "70B", free: true },
 ]
 
 export function setZgAgentConfig(configs: { seatIndex: number; modelId: string; skillId: string; isUser?: boolean }[]) {
@@ -56,7 +70,7 @@ export function setZgAgentConfig(configs: { seatIndex: number; modelId: string; 
       }
     }
   }
-  console.log("[0G] Agent config updated:", ZG_AGENTS.map(a => `${a.name}(${a.model}/${a.skillId})`).join(", "))
+  console.log("[0G Compute] Agent config updated:", ZG_AGENTS.map(a => `${a.name}(${a.model.split("/").pop()}/${a.skillId})`).join(", "))
 }
 
 export async function getZgAgentAction(
@@ -79,12 +93,12 @@ export async function getZgAgentAction(
     const controller = new AbortController()
     const timeout = setTimeout(() => controller.abort(), 15000)
 
-    const response = await zg.chat.completions.create({
+    const response = await client.chat.completions.create({
       model: agent.model,
       messages: [
         {
           role: "system",
-          content: `You are ${agent.name}, a Texas Hold'em player on the agentbet-1 Initia rollup. Every chip moves on-chain in CHIP. You play with a FIXED session budget — the "my stack" value in the state is your total remaining budget. Do not try to bet more than your stack.
+          content: `You are ${agent.name}, a Texas Hold'em AI agent powered by 0G Compute on the 0G Network. Every chip moves on-chain in A0GI. You play with a FIXED session budget — the "my stack" value in the state is your total remaining budget. Do not try to bet more than your stack.
 
 Personality: ${agent.personality}. ${getSkillPrompt(agent.skillId)}
 
@@ -128,10 +142,9 @@ Your current stack depth: ${depth}.`,
     }
 
     parsed.amount = Number(parsed.amount) || 0
-
     return parsed
   } catch (e: any) {
-    console.log(`[LLM ERROR] ${agent.name} (${agent.model}): ${e.message?.slice(0, 80) || "unknown error"}`)
+    console.log(`[0G Compute] ${agent.name} (${agent.model}): ${e.message?.slice(0, 80) || "unknown error"}`)
     return { action: "call", amount: 0, message: "Connection hiccup, calling." }
   }
 }

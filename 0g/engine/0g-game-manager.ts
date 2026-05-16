@@ -11,11 +11,10 @@ import { createPokerEngine, AGENT_NAMES, STARTING_STACK, INITIAL_BET } from "../
 import type { PokerState, PokerEngine } from "../../modules/engine/poker"
 import type { AgentName, GameEvent, ActionType, GameState, Agent } from "../../modules/shared/types"
 
-// ── 0G Compute (AI providers) ───────────────────────────────────────────────
+// ── 0G Compute (AI inference) ───────────────────────────────────────────────
 import {
   getAgentActionFromProvider,
   getDefaultAgents,
-  type AIProvider,
 } from "../compute/provider-selector"
 import { setZgAgentConfig } from "../compute/0g-compute"
 
@@ -37,15 +36,9 @@ import {
   type HandResult,
 } from "../storage/0g-storage"
 
-// ── 0G Sealed Inference (TEE verification) ──────────────────────────────────
-import {
-  initSealedInference,
-  getSealedAgentAction,
-  getVerificationBadge,
-  setupProvider as setupSealedProvider,
-} from "../sealed-inference/sealed-inference"
-import type { SealedInferenceBroker } from "../sealed-inference/types"
-import { KNOWN_PROVIDERS } from "../sealed-inference/config"
+// ── 0G Sealed Inference (TEE verification — available for future use) ───────
+// The sealed inference module is ready but not active in this build.
+// To enable: import and initialize the broker in startGame().
 
 // ── Shared utilities ────────────────────────────────────────────────────────
 import { log, logTx, clearLogs, printLogPaths } from "../../modules/engine/logger"
@@ -55,8 +48,6 @@ import { log, logTx, clearLogs, printLogPaths } from "../../modules/engine/logge
 const TURN_DELAY_MS        = 5000   // 5 seconds AFTER each action
 const FIXED_BET_CENTS      = 20     // $0.20 fixed bet per round
 const MAX_RAISES_PER_ROUND = 4      // cap re-raises to prevent infinite loops
-
-type ProviderMode = AIProvider | "0g-sealed"
 
 function sleep(ms: number) {
   return new Promise((r) => setTimeout(r, ms))
@@ -79,8 +70,6 @@ export interface ZgGameManager {
   onEvent:      (handler: EventHandler) => void
   rebuy:        (amountCents: number) => void
   setForceFold: () => void
-  setProvider:  (provider: ProviderMode) => void
-  getProvider:  () => ProviderMode
 }
 
 // ─── Game ID ────────────────────────────────────────────────────────────────
@@ -105,11 +94,6 @@ export function createGameManager(): ZgGameManager {
   let userAgentName:    string | null = null
   let forceFolding      = false
 
-  // AI provider state
-  let currentProvider: ProviderMode = "0g"
-  let sealedBroker: SealedInferenceBroker | null = null
-  let sealedProviderAddress: string = ""
-
   // Storage state
   let gameId: string = ""
   let handActions: GameSessionData["actions"] = []
@@ -124,15 +108,6 @@ export function createGameManager(): ZgGameManager {
   function onEvent(handler: EventHandler) { handlers.push(handler) }
   function getState(): PokerState | null { return engine?.getState() ?? null }
   function isRunning(): boolean { return running }
-  function getProvider(): ProviderMode { return currentProvider }
-
-  // ── Provider switching ────────────────────────────────────────────────────
-
-  function setProvider(provider: ProviderMode) {
-    const prev = currentProvider
-    currentProvider = provider
-    log("PROVIDER", `Switched from "${prev}" to "${provider}"`)
-  }
 
   // ── Rebuy / fold controls ─────────────────────────────────────────────────
 
@@ -168,13 +143,10 @@ export function createGameManager(): ZgGameManager {
     return new Promise((resolve) => { continueResolve = resolve })
   }
 
-  // ── Resolve agents for the active provider ────────────────────────────────
+  // ── Resolve agents ─────────────────────────────────────────────────────────
 
   function getAgents(): Agent[] {
-    // "0g-sealed" uses the same agent list as "0g" — the provider just routes
-    // through TEE instead of the standard router.
-    const base: AIProvider = currentProvider === "0g-sealed" ? "0g" : currentProvider
-    return getDefaultAgents(base)
+    return getDefaultAgents()
   }
 
   // ── Get action from an agent ──────────────────────────────────────────────
@@ -211,38 +183,11 @@ export function createGameManager(): ZgGameManager {
     }
 
     const ctx = { minRaise, bigBlind: FIXED_BET_CENTS }
-    let decision: { action: ActionType; amount: number; message: string }
-    let verificationBadge = ""
 
-    if (currentProvider === "0g-sealed" && sealedBroker && sealedProviderAddress) {
-      // ── Sealed Inference path (TEE-verified) ────────────────────────────
-      log("PROVIDER", `Calling 0G Sealed Inference for ${player.name} | stack: ${usd(player.stack)} pot: ${usd(s.pot)} call: ${usd(callAmount)}`)
-
-      const sealed = await getSealedAgentAction(
-        sealedBroker,
-        agent,
-        gameState,
-        sealedProviderAddress,
-        ctx,
-      )
-
-      verificationBadge = ` [${getVerificationBadge(sealed.verified)}]`
-      decision = {
-        action: sealed.action,
-        amount: sealed.amount,
-        message: sealed.message,
-      }
-
-      log("PROVIDER", `${player.name} (sealed): ${sealed.action} ${sealed.amount} — "${sealed.message}" ${verificationBadge} chatId=${sealed.chatId.slice(0, 12)}`)
-    } else {
-      // ── Standard provider path (nvidia or 0g router) ────────────────────
-      const base: AIProvider = currentProvider === "0g-sealed" ? "0g" : currentProvider
-      const providerLabel = base === "0g" ? "0G Compute" : "NVIDIA NIM"
-
-      log("PROVIDER", `Calling ${providerLabel} for ${player.name} (${agent.model}) | stack: ${usd(player.stack)} pot: ${usd(s.pot)} call: ${usd(callAmount)}`)
-      decision = await getAgentActionFromProvider(base, agent, gameState, ctx)
-      log("PROVIDER", `${player.name}: ${decision.action} ${decision.amount} — "${decision.message}"`)
-    }
+    log("COMPUTE", `0G Compute → ${player.name} (${agent.model}) | stack: ${usd(player.stack)} pot: ${usd(s.pot)} call: ${usd(callAmount)}`)
+    const decision = await getAgentActionFromProvider(agent, gameState, ctx)
+    log("COMPUTE", `${player.name}: ${decision.action} ${decision.amount} — "${decision.message}"`)
+    const verificationBadge = ""
 
     // Track action for 0G Storage
     handActions.push({
@@ -445,34 +390,8 @@ export function createGameManager(): ZgGameManager {
 
     clearLogs()
     printLogPaths()
-    log("INIT", `=== GAME START — 0G Network (provider: ${currentProvider}) ===`)
+    log("INIT", `=== GAME START — 0G Compute Network ===`)
     log("INIT", `Game ID: ${gameId}`)
-
-    // ── Initialize Sealed Inference broker if needed ─────────────────────
-    if (currentProvider === "0g-sealed") {
-      try {
-        sealedBroker = await initSealedInference()
-
-        // Pick the first known provider by default, or use env var
-        sealedProviderAddress =
-          process.env.ZG_SEALED_PROVIDER ??
-          KNOWN_PROVIDERS["llama-8b"]?.address ??
-          Object.values(KNOWN_PROVIDERS)[0]?.address ??
-          ""
-
-        if (sealedProviderAddress) {
-          await setupSealedProvider(sealedBroker, sealedProviderAddress)
-          log("SEALED", `Broker initialized, provider: ${sealedProviderAddress.slice(0, 10)}...`)
-        } else {
-          log("SEALED", "No provider address available — falling back to standard 0G Compute")
-          currentProvider = "0g"
-        }
-      } catch (err) {
-        log("SEALED", `Broker init failed — falling back to 0G Compute: ${(err as Error).message?.slice(0, 80)}`)
-        currentProvider = "0g"
-        sealedBroker = null
-      }
-    }
 
     // ── Setup wallets ───────────────────────────────────────────────────────
     wallets = await setupAllWallets(AGENT_NAMES, STARTING_STACK / 100)
@@ -769,7 +688,5 @@ export function createGameManager(): ZgGameManager {
     onEvent,
     rebuy,
     setForceFold,
-    setProvider,
-    getProvider,
   }
 }

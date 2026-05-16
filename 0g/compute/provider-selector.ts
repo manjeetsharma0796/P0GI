@@ -1,37 +1,31 @@
+// 0g/compute/provider-selector.ts
+// Single AI provider: "0G Compute"
+// All inference is routed through 0g-compute.ts which handles the actual API calls.
+
 import type { AgentAction, Agent, GameState } from "../../modules/shared/types"
-import { AGENTS, AVAILABLE_MODELS, getAgentAction } from "../../modules/agent/nvidia"
 import { ZG_AGENTS, ZG_AVAILABLE_MODELS, getZgAgentAction } from "./0g-compute"
 
-export type AIProvider = "nvidia" | "0g"
-
+/**
+ * Get an agent's poker action via 0G Compute.
+ */
 export function getAgentActionFromProvider(
-  provider: AIProvider,
   agent: Agent,
   gameState: GameState,
   ctx?: { minRaise?: number; bigBlind?: number }
 ): Promise<AgentAction> {
-  switch (provider) {
-    case "nvidia":
-      return getAgentAction(agent, gameState, ctx)
-    case "0g":
-      return getZgAgentAction(agent, gameState, ctx)
-  }
+  return getZgAgentAction(agent, gameState, ctx)
 }
 
-export function getAvailableModels(provider: AIProvider) {
-  switch (provider) {
-    case "nvidia":
-      return AVAILABLE_MODELS
-    case "0g":
-      return ZG_AVAILABLE_MODELS
-  }
+/**
+ * Return the list of available models for the UI.
+ */
+export function getAvailableModels() {
+  return ZG_AVAILABLE_MODELS
 }
 
-export function getDefaultAgents(provider: AIProvider): Agent[] {
-  switch (provider) {
-    case "nvidia":
-      return AGENTS
-    case "0g":
-      return ZG_AGENTS
-  }
+/**
+ * Return the default agent configuration.
+ */
+export function getDefaultAgents(): Agent[] {
+  return ZG_AGENTS
 }

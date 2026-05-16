@@ -1,22 +1,15 @@
 // 0g/server/0g-server.ts
 // Socket.io server for the 0G-integrated agent-bet poker game.
-// Mirrors server/index.ts but uses the 0G game manager with provider switching.
+// All AI inference is powered by 0G Compute.
 //
 // Run: bun run 0g/server/0g-server.ts
 
 import { Server } from "socket.io"
 import { createServer } from "http"
 import { createGameManager, type ZgGameManager } from "../engine/0g-game-manager"
-import { setZgAgentConfig } from "../compute/0g-compute"
-import { setAgentConfig } from "../../modules/agent/nvidia"
-import {
-  getAgentActionFromProvider,
-  getAvailableModels,
-  getDefaultAgents,
-  type AIProvider,
-} from "../compute/provider-selector"
+import { setZgAgentConfig, ZG_AVAILABLE_MODELS } from "../compute/0g-compute"
+import { getAvailableModels, getDefaultAgents } from "../compute/provider-selector"
 import { getLeaderboard } from "../storage/0g-storage"
-import { KNOWN_PROVIDERS } from "../sealed-inference/config"
 
 const PORT = Number(process.env.ZG_SERVER_PORT ?? 3001)
 
@@ -28,11 +21,10 @@ const httpServer = createServer((req, res) => {
     res.end(JSON.stringify({
       status: "ok",
       service: "agentbet-0g-server",
-      provider: gm.getProvider(),
+      provider: "0G Compute",
     }))
     return
   }
-  // Fallback 404
   res.writeHead(404)
   res.end()
 })
@@ -61,21 +53,13 @@ io.on("connection", (socket) => {
     gm.stopGame()
   }
 
-  socket.emit("game_status", { running: false, provider: gm.getProvider() })
+  socket.emit("game_status", { running: false, provider: "0G Compute" })
 
   // ── Agent configuration ─────────────────────────────────────────────────
 
   socket.on("configure_agents", (configs: { seatIndex: number; modelId: string; skillId: string; isUser?: boolean }[]) => {
     console.log("[0G-SERVER] Agent config received:", configs)
-
-    // Update both provider agent lists so switching works seamlessly
-    const provider = gm.getProvider()
-    if (provider === "nvidia") {
-      setAgentConfig(configs)
-    } else {
-      setZgAgentConfig(configs)
-    }
-
+    setZgAgentConfig(configs)
     socket.emit("config_applied", true)
   })
 
@@ -89,10 +73,10 @@ io.on("connection", (socket) => {
     }
     const buyIn = data?.buyInCents ?? 0
     const userAgent = data?.userAgent
-    console.log(`[0G-SERVER] Starting game... (buy-in: $${(buyIn / 100).toFixed(2)}, user: ${userAgent ?? "none"}, provider: ${gm.getProvider()})`)
-    io.emit("game_status", { running: true, provider: gm.getProvider() })
+    console.log(`[0G-SERVER] Starting game... (buy-in: $${(buyIn / 100).toFixed(2)}, user: ${userAgent ?? "none"}, provider: 0G Compute)`)
+    io.emit("game_status", { running: true, provider: "0G Compute" })
     await gm.startGame(buyIn, userAgent)
-    io.emit("game_status", { running: false, provider: gm.getProvider() })
+    io.emit("game_status", { running: false, provider: "0G Compute" })
   })
 
   // ── Deal next hand ──────────────────────────────────────────────────────
@@ -121,7 +105,7 @@ io.on("connection", (socket) => {
     if (!gm.isRunning()) return
     console.log("[0G-SERVER] Stopping game...")
     gm.stopGame()
-    io.emit("game_status", { running: false, provider: gm.getProvider() })
+    io.emit("game_status", { running: false, provider: "0G Compute" })
   })
 
   // ── Current state ───────────────────────────────────────────────────────
@@ -130,57 +114,19 @@ io.on("connection", (socket) => {
     socket.emit("game_state", gm.getState())
   })
 
-  // ── Provider switching ────────────────────────────────────────────────────
-  // Frontend can switch AI provider at any time (between hands).
-  // provider: "nvidia" | "0g" | "0g-sealed"
-
-  socket.on("set_provider", (data: { provider: string }) => {
-    const valid = ["nvidia", "0g", "0g-sealed"]
-    if (!valid.includes(data.provider)) {
-      socket.emit("provider_error", { message: `Invalid provider: ${data.provider}. Valid: ${valid.join(", ")}` })
-      return
-    }
-    gm.setProvider(data.provider as AIProvider | "0g-sealed")
-    console.log(`[0G-SERVER] Provider set to: ${data.provider}`)
-    io.emit("provider_changed", { provider: data.provider })
-  })
-
-  // ── Get available providers and models ──────────────────────────────────
+  // ── Get available models ──────────────────────────────────────────────
 
   socket.on("get_providers", () => {
-    const providers = [
-      {
-        id: "nvidia",
-        name: "NVIDIA NIM",
-        description: "NVIDIA free API (OpenAI-compatible)",
-        models: getAvailableModels("nvidia"),
-        agents: getDefaultAgents("nvidia").map(a => ({ name: a.name, model: a.model, personality: a.personality, skillId: a.skillId })),
-      },
-      {
-        id: "0g",
-        name: "0G Compute",
-        description: "0G Compute Network via router API",
-        models: getAvailableModels("0g"),
-        agents: getDefaultAgents("0g").map(a => ({ name: a.name, model: a.model, personality: a.personality, skillId: a.skillId })),
-      },
-      {
-        id: "0g-sealed",
-        name: "0G Sealed Inference",
-        description: "TEE-verified AI via 0G Compute Network",
-        models: Object.entries(KNOWN_PROVIDERS).map(([key, p]) => ({
-          id: p.address,
-          name: p.name,
-          provider: "0G TEE",
-          size: "varies",
-          free: false,
-        })),
-        agents: getDefaultAgents("0g").map(a => ({ name: a.name, model: a.model, personality: a.personality, skillId: a.skillId })),
-      },
-    ]
-
+    const agents = getDefaultAgents()
     socket.emit("providers", {
-      current: gm.getProvider(),
-      available: providers,
+      current: "0G Compute",
+      available: [{
+        id: "0g-compute",
+        name: "0G Compute",
+        description: "AI inference powered by the 0G Compute Network",
+        models: getAvailableModels(),
+        agents: agents.map(a => ({ name: a.name, model: a.model, personality: a.personality, skillId: a.skillId })),
+      }],
     })
   })
 
@@ -210,7 +156,7 @@ io.on("connection", (socket) => {
 // ─── Start ──────────────────────────────────────────────────────────────────
 
 httpServer.listen(PORT, () => {
-  console.log(`\n[0G-SERVER] Agent Poker (0G) running on http://localhost:${PORT}`)
-  console.log(`[0G-SERVER] AI Provider: ${gm.getProvider()}`)
+  console.log(`\n[0G-SERVER] Agent Poker (0G Compute) running on http://localhost:${PORT}`)
+  console.log("[0G-SERVER] AI Provider: 0G Compute")
   console.log("[0G-SERVER] Waiting for client to connect and send 'start_game'...\n")
 })
