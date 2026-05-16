@@ -57,9 +57,16 @@ let _walletsCache: WalletsFile | null = null;
 
 function loadWallets(): WalletsFile {
   if (_walletsCache) return _walletsCache;
+
+  // Cloud deploy: read from WALLETS_JSON env var when file isn't on disk
   if (!fs.existsSync(WALLETS_PATH)) {
+    const envWallets = process.env.WALLETS_JSON;
+    if (envWallets) {
+      _walletsCache = JSON.parse(envWallets);
+      return _walletsCache!;
+    }
     throw new Error(
-      `wallets.json not found at ${WALLETS_PATH}. Run 0g/scripts/gen-wallets.ts first.`,
+      `wallets.json not found at ${WALLETS_PATH}. Set WALLETS_JSON env var or run 0g/scripts/gen-wallets.ts.`,
     );
   }
   _walletsCache = JSON.parse(fs.readFileSync(WALLETS_PATH, "utf-8"));
