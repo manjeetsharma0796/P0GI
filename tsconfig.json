@@ -30,5 +30,5 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts"
   ],
-  "exclude": ["node_modules", "modules/agent/x402.ts", "modules/agent/ows.ts", "modules/engine/**", "server/**", "scripts/**"]
+  "exclude": ["node_modules", "modules/agent/x402.ts", "modules/agent/ows.ts", "modules/engine/**", "server/**", "scripts/**", "0g/**"]
 }
