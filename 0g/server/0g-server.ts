@@ -11,7 +11,7 @@ import { setZgAgentConfig } from "../compute/0g-compute"
 import { getAvailableModelsDynamic, getDefaultAgents } from "../compute/provider-selector"
 import { getLeaderboard } from "../storage/0g-storage"
 
-const PORT = Number(process.env.ZG_SERVER_PORT ?? 3001)
+const PORT = Number(process.env.PORT ?? process.env.ZG_SERVER_PORT ?? 3001)
 
 // ─── HTTP server ────────────────────────────────────────────────────────────
 
