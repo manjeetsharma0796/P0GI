@@ -1,0 +1,16 @@
+{
+  "name": "agentbet-0g-contracts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "compile": "hardhat compile",
+    "deploy:testnet": "hardhat run scripts/deploy.js --network 0g-testnet",
+    "deploy:mainnet": "hardhat run scripts/deploy.js --network 0g-mainnet"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^6.1.2",
+    "@nomicfoundation/hardhat-verify": "^2.1.3",
+    "dotenv": "^17.4.2",
+    "hardhat": "^2"
+  }
+}
