@@ -105,7 +105,7 @@ export default async function Image() {
 
         {/* Tech badges */}
         <div style={{ display: "flex", gap: 12, opacity: 0.6 }}>
-          {["Initia Rollup", "Move VM", "InterwovenKit", "Auto-sign"].map((tech) => (
+          {["0G Compute", "0G Chain", "0G Storage", "ERC20 CHIP"].map((tech) => (
             <div
               key={tech}
               style={{

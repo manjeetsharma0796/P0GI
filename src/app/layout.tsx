@@ -3,8 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { SocketProvider } from "@/providers/socket-provider";
 import { WalletProvider } from "@/providers/wallet-provider";
-import { InitiaProvider } from "@/providers/initia-provider";
-import { AirdropOnConnect } from "@/providers/airdrop-on-connect";
+import { EvmWalletProvider } from "@/providers/evm-wallet-provider";
 import { SelectedAgentProvider } from "@/providers/selected-agent-provider";
 import { Toaster } from "sonner";
 
@@ -80,17 +79,16 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-full flex flex-col">
-        <InitiaProvider>
+        <EvmWalletProvider>
           <SocketProvider>
             <WalletProvider>
               <SelectedAgentProvider>
-                <AirdropOnConnect />
                 {children}
                 <Toaster position="bottom-right" closeButton swipeDirections={["right"]} />
               </SelectedAgentProvider>
             </WalletProvider>
           </SocketProvider>
-        </InitiaProvider>
+        </EvmWalletProvider>
       </body>
     </html>
   );

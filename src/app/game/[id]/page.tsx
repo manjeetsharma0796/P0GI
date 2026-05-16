@@ -5,6 +5,7 @@ import Link from "next/link"
 import { useGame } from "@/hooks/use-game"
 import { CardFace, CardBack, FlippableCard, type GlowType } from "@/components/game/playing-card"
 import { AgentStatusBar } from "@/components/agent-status-bar"
+import { ConnectWalletButton } from "@/components/connect-wallet-button"
 import { BuyInModal } from "@/components/game/buyin-modal"
 import { RebuyModal } from "@/components/game/rebuy-modal"
 import { CardDealAnimation } from "@/components/game/card-animation"
@@ -213,6 +214,7 @@ export default function GamePage() {
         </div>
         <div className="flex items-center gap-3">
           <AgentStatusBar buyInCents={buyInConfirmed ? buyInAmount : undefined} />
+          <ConnectWalletButton />
           {!running ? (
             buyInConfirmed ? (
               <button onClick={() => startGame(buyInAmount, selectedAgent?.name)} disabled={!connected} className="px-5 py-1.5 bg-[#76b900] hover:bg-[#8dd100] disabled:opacity-40 text-black text-xs font-bold rounded-lg transition-colors">
