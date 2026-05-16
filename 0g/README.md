@@ -13,15 +13,16 @@ AgentBet uses **5 core 0G products** end-to-end:
 
 | 0G Product | Usage | Module |
 |---|---|---|
-| **0G Chain** | On-chain settlements in native A0GI tokens + HandSettled event audit trail | `0g/chain/` |
+| **0G Chain** | On-chain settlements via CHIP ERC20 token + HandSettled event audit trail | `0g/chain/` |
 | **0G Compute** | AI inference via Router API (DeepSeek V3, Qwen 3.6, 0GM 35B, DeepSeek R1) | `0g/compute/` |
 | **0G Storage (Log)** | Immutable game history — every hand archived permanently | `0g/storage/` |
 | **0G Storage (KV)** | Mutable leaderboard — live win/loss stats per agent | `0g/storage/` |
 | **0G Sealed Inference** | TEE-verified AI decisions — cryptographic proof of fair play | `0g/sealed-inference/` |
 
-### Smart Contract
+### Smart Contracts
 
-- **Contract**: `AgentBetGame.sol` — records settled hands with `HandSettled` events
+- **AgentBetGame**: [`0x99E5a8a04154B7DF6F724328C757441dCd7b262e`](https://chainscan-galileo.0g.ai/address/0x99E5a8a04154B7DF6F724328C757441dCd7b262e) — records settled hands with `HandSettled` events
+- **CHIPToken (ERC20)**: [`0xB970397578F1033a886F70A6538559117Fc828A6`](https://chainscan-galileo.0g.ai/address/0xB970397578F1033a886F70A6538559117Fc828A6) — 1M fixed supply, 18 decimals
 - **Network**: 0G Galileo Testnet (Chain ID: 16602)
 - **Explorer**: https://chainscan-galileo.0g.ai
 
@@ -44,7 +45,7 @@ AgentBet uses **5 core 0G products** end-to-end:
 │              │              │              │                 │
 │ Router API   │ AgentBetGame │ Log: archive │ Broker auth     │
 │ 4 LLM models│ .sol contract│ KV: leaders  │ Proof of fair   │
-│ + NVIDIA opt │ A0GI native  │              │ play            │
+│ + NVIDIA opt │ CHIP ERC20   │              │ play            │
 └──────────────┴──────────────┴──────────────┴─────────────────┘
 ```
 
@@ -132,7 +133,7 @@ bun run dev
 │   ├── contracts/
 │   │   └── AgentBetGame.sol   # On-chain hand settlement contract
 │   ├── 0g-chain.ts            # Contract interaction (ethers v6)
-│   ├── 0g-settlement.ts       # Settlement layer (native A0GI tokens)
+│   ├── 0g-settlement.ts       # Settlement layer (CHIP ERC20 transfer)
 │   ├── hardhat.config.js      # Hardhat config for 0G testnet/mainnet
 │   └── scripts/deploy.js      # Deploy + auto-verify on explorer
 │
@@ -171,15 +172,19 @@ bun run dev
 
 ---
 
-## Unit Economics
+## CHIP Token & Unit Economics
+
+**CHIP** is the in-game ERC20 token used for all settlements:
+
+- **Supply**: 1,000,000 CHIP (fixed, 18 decimals)
+- **Starting stake**: Each agent is funded with **10,000 CHIP**
+- **Settlement**: Uses ERC20 `transfer()` — not native A0GI
 
 ```
-1 game-cent   = 0.0001 A0GI  = 10^14 wei
-1 game-dollar = 0.01 A0GI    = 10^16 wei
-$100 game     = 1.0 A0GI
+Small blind  = 50 CHIP
+Big blind    = 100 CHIP
+Starting stack per agent = 10,000 CHIP
 ```
-
-Agents start with ~0.05 A0GI each ($50 game-dollars).
 
 ---
 
