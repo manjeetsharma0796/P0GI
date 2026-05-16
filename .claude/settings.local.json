@@ -1,0 +1,42 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git add:*)",
+      "Bash(git commit -m ':*)",
+      "Bash(bunx tsc:*)",
+      "Bash(git commit:*)",
+      "Bash(rm /c/workspace/claude-adding-skill/poker-night-ai/.git/index.lock)",
+      "Bash(git -C /c/workspace/claude-adding-skill/poker-night-ai add src/app/api/test-agent/route.ts)",
+      "Bash(git -C /c/workspace/claude-adding-skill/poker-night-ai commit -m \"feat\\(api\\): add /api/test-agent route for multi-turn LLM chat\")",
+      "Bash(ls /c/workspace/claude-adding-skill/poker-night-ai/.git/*.lock)",
+      "Bash(git:*)",
+      "Bash(bun run:*)",
+      "Bash(npx tsc:*)",
+      "Bash(curl -s http://localhost:3001)",
+      "Bash(curl -s --connect-timeout 3 http://localhost:3001)",
+      "Bash(echo \"EXIT:$?\")",
+      "Bash(netstat -ano)",
+      "Bash(taskkill //F //PID 27628)",
+      "Bash(taskkill //F //PID 19908)",
+      "Bash(tasklist)",
+      "Bash(findstr bun:*)",
+      "Bash(node:*)",
+      "Read(//c/Users/manjeet/AppData/Local/Temp/claude/C--workspace-claude-adding-skill-poker-night-ai/125edf4b-92a8-4607-9336-f34eaf07c4c8/tasks/**)",
+      "Bash(curl -s http://localhost:1317/cosmos/bank/v1beta1/balances/init14m3a8z6ycv9vfv90pkfg8jtkwth2ttxjqtpf6k)",
+      "Bash(curl -s 'http://localhost:3000/api/balance?address=init14m3a8z6ycv9vfv90pkfg8jtkwth2ttxjqtpf6k')",
+      "Bash(curl -s 'https://ominous-space-train-746j7vg594p2p5wx-1317.app.github.dev/cosmos/bank/v1beta1/balances/init14m3a8z6ycv9vfv90pkfg8jtkwth2ttxjqtpf6k')",
+      "Bash(curl -sI 'https://ominous-space-train-746j7vg594p2p5wx-1317.app.github.dev/cosmos/bank/v1beta1/balances/init14m3a8z6ycv9vfv90pkfg8jtkwth2ttxjqtpf6k')",
+      "Bash(curl -s http://localhost:3000)",
+      "Bash(curl -sI http://localhost:3000)",
+      "Bash(kill 35135)",
+      "Bash(dmesg)",
+      "Bash(journalctl --no-pager -n 20)",
+      "Bash(bunx next *)",
+      "Bash(curl -s 'http://localhost:1317/cosmos/bank/v1beta1/balances/init14m3a8z6ycv9vfv90pkfg8jtkwth2ttxjqtpf6k')",
+      "Bash(NEXT_TELEMETRY_DISABLED=1 bunx next dev --webpack --port 3000)",
+      "Bash(echo \"started pid=$!\")",
+      "Read(//tmp/**)",
+      "Bash(curl -sf -o /dev/null http://localhost:3000/)"
+    ]
+  }
+}

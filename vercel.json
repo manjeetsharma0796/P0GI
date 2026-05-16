@@ -3,11 +3,5 @@
   "framework": "nextjs",
   "installCommand": "bun install",
   "buildCommand": "bun run build",
-  "ignoreCommand": "git diff --quiet HEAD^ HEAD -- src/ public/ next.config.ts package.json",
-  "experimentalServices": {
-    "web": {
-      "routePrefix": "/",
-      "framework": "nextjs"
-    }
-  }
+  "ignoreCommand": "git diff --quiet HEAD^ HEAD -- src/ public/ next.config.ts package.json"
 }
