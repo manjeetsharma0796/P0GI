@@ -1,0 +1,13 @@
+services:
+  ows:
+    build:
+      context: .
+      dockerfile: Dockerfile.ows
+    container_name: ows-agent-poker
+    volumes:
+      # Mount existing OWS vault from WSL into container
+      - ows-vault:/root/.ows
+    restart: unless-stopped
+
+volumes:
+  ows-vault:

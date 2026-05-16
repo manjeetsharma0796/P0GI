@@ -1,0 +1,35 @@
+# Railway deployment: Game server (Socket.io) + OWS wallet signing
+# Bundles the exported OWS vault for real x402 on-chain settlements
+
+FROM oven/bun:1 AS base
+
+RUN apt-get update && apt-get install -y curl ca-certificates && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Copy OWS binary + encrypted vault from export
+COPY docker/export/ows-vault/bin/ows /usr/local/bin/ows
+RUN chmod +x /usr/local/bin/ows
+
+# Copy encrypted wallet vault
+COPY docker/export/ows-vault/wallets/ /root/.ows/wallets/
+COPY docker/export/ows-vault/policies/ /root/.ows/policies/
+COPY docker/export/ows-vault/logs/ /root/.ows/logs/
+
+# Install dependencies
+COPY package.json bun.lock* ./
+RUN bun install --frozen-lockfile --production
+
+# Copy source
+COPY modules/ ./modules/
+COPY server/ ./server/
+COPY scripts/ ./scripts/
+
+# Expose game server port
+EXPOSE 3001
+
+ENV X402_LIVE=true
+ENV OWS_DIRECT=true
+
+# Start game server
+CMD ["bun", "run", "server/index.ts"]

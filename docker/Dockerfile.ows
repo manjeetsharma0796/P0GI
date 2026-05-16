@@ -1,0 +1,14 @@
+FROM ubuntu:22.04
+
+RUN apt-get update && apt-get install -y curl ca-certificates && rm -rf /var/lib/apt/lists/*
+
+# Install OWS CLI binary
+RUN mkdir -p /root/.ows/bin && \
+    curl -fsSL -o /root/.ows/bin/ows "https://github.com/open-wallet-standard/core/releases/download/v1.2.4/ows-linux-x86_64" && \
+    chmod +x /root/.ows/bin/ows
+
+ENV PATH="/root/.ows/bin:${PATH}"
+
+VOLUME ["/root/.ows/vault"]
+
+CMD ["tail", "-f", "/dev/null"]

@@ -1,0 +1,44 @@
+services:
+  agentbet-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    image: agentbet-dev:latest
+    container_name: agentbet-dev
+    hostname: agentbet-dev
+    working_dir: /workspace
+    tty: true
+    stdin_open: true
+    volumes:
+      - "..:/workspace"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "agentbet-home:/root"
+      - "agentbet-gocache:/root/go/pkg/mod"
+      - "agentbet-node-modules:/workspace/node_modules"
+      # Keep heavy-write build-cache dirs OFF the Windows bind mount.
+      # Writing to these through Docker Desktop's grpc-fuse bridge causes the
+      # CLI to deadlock (500 errors) within a minute of `next dev` starting.
+      - "agentbet-next-cache:/workspace/.next"
+      - "agentbet-turbo-cache:/workspace/.turbo"
+    ports:
+      - "3000:3000"    # Next.js frontend
+      - "3001:3001"    # Bun socket.io server
+      - "3005:3005"    # OPinit executor (override default 3000)
+      - "26657:26657"  # Rollup RPC
+      - "1317:1317"    # Rollup REST
+      - "8080:8080"    # Rollup indexer
+    environment:
+      - TERM=xterm-256color
+      - NEXT_PUBLIC_ROLLUP_CHAIN_ID=agentbet-1
+      - NEXT_PUBLIC_ROLLUP_RPC=http://localhost:26657
+      - NEXT_PUBLIC_ROLLUP_REST=http://localhost:1317
+      - NEXT_PUBLIC_ROLLUP_INDEXER=http://localhost:8080
+    command: ["/bin/bash", "/workspace/docker/full-start.sh"]
+    restart: unless-stopped
+
+volumes:
+  agentbet-home:
+  agentbet-gocache:
+  agentbet-node-modules:
+  agentbet-next-cache:
+  agentbet-turbo-cache:

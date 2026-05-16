@@ -1,0 +1,79 @@
+{
+  "ows_version": 2,
+  "id": "1e7afcb7-f879-4830-b9e0-93b997d59909",
+  "name": "poker-qwen",
+  "created_at": "2026-04-03T23:25:23.460411231+00:00",
+  "accounts": [
+    {
+      "account_id": "eip155:1:0xcA10A9910b62979eDA09A92CB78720fF67ffdb00",
+      "address": "0xcA10A9910b62979eDA09A92CB78720fF67ffdb00",
+      "chain_id": "eip155:1",
+      "derivation_path": "m/44'/60'/0'/0/0"
+    },
+    {
+      "account_id": "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp:BLAbnApiJQQR48e78gjVsW5WngyMZ9diqV1Y258J78aN",
+      "address": "BLAbnApiJQQR48e78gjVsW5WngyMZ9diqV1Y258J78aN",
+      "chain_id": "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp",
+      "derivation_path": "m/44'/501'/0'/0'"
+    },
+    {
+      "account_id": "bip122:000000000019d6689c085ae165831e93:bc1qcuj9zu0y0ahvg5pqzgskj9pupacs009frarmc2",
+      "address": "bc1qcuj9zu0y0ahvg5pqzgskj9pupacs009frarmc2",
+      "chain_id": "bip122:000000000019d6689c085ae165831e93",
+      "derivation_path": "m/84'/0'/0'/0/0"
+    },
+    {
+      "account_id": "cosmos:cosmoshub-4:cosmos1dtfhw2us79aducf47zzn99v35q949k7eunkrqu",
+      "address": "cosmos1dtfhw2us79aducf47zzn99v35q949k7eunkrqu",
+      "chain_id": "cosmos:cosmoshub-4",
+      "derivation_path": "m/44'/118'/0'/0/0"
+    },
+    {
+      "account_id": "tron:mainnet:TWFbdpsZR3FgaYHJwUrLXBCCwjCKyKMb59",
+      "address": "TWFbdpsZR3FgaYHJwUrLXBCCwjCKyKMb59",
+      "chain_id": "tron:mainnet",
+      "derivation_path": "m/44'/195'/0'/0/0"
+    },
+    {
+      "account_id": "ton:mainnet:UQD2ztYg8RuTblQWfggrTJkAFbLtzkM2G_uEfenRvZl8MPaI",
+      "address": "UQD2ztYg8RuTblQWfggrTJkAFbLtzkM2G_uEfenRvZl8MPaI",
+      "chain_id": "ton:mainnet",
+      "derivation_path": "m/44'/607'/0'"
+    },
+    {
+      "account_id": "fil:mainnet:f1k4ci22p5dekpgbumowc5laftca6zb3p3id64lsq",
+      "address": "f1k4ci22p5dekpgbumowc5laftca6zb3p3id64lsq",
+      "chain_id": "fil:mainnet",
+      "derivation_path": "m/44'/461'/0'/0/0"
+    },
+    {
+      "account_id": "sui:mainnet:0xe559ca7e9c22ad539cb61db17fe0e904a5b9c3671b49eb9498c287171819254d",
+      "address": "0xe559ca7e9c22ad539cb61db17fe0e904a5b9c3671b49eb9498c287171819254d",
+      "chain_id": "sui:mainnet",
+      "derivation_path": "m/44'/784'/0'/0'/0'"
+    },
+    {
+      "account_id": "xrpl:mainnet:rDu77YjiCjQA9ikC38AAsEXxAgHVcS2gfw",
+      "address": "rDu77YjiCjQA9ikC38AAsEXxAgHVcS2gfw",
+      "chain_id": "xrpl:mainnet",
+      "derivation_path": "m/44'/144'/0'/0/0"
+    }
+  ],
+  "crypto": {
+    "auth_tag": "a43fda5d08479602974722a383d946b5",
+    "cipher": "aes-256-gcm",
+    "cipherparams": {
+      "iv": "ea49c4f8665ec87494e19558"
+    },
+    "ciphertext": "4c0978663c2840d83cfa36ea246d73d87a2569902ba7e0ad9b423dfc85921898dc1f506bf785df15e2d3bed90f94bfe55bdd5f8614c65af113c1864b45c2058120172bcf0bf4031a2a408396",
+    "kdf": "scrypt",
+    "kdfparams": {
+      "dklen": 32,
+      "n": 65536,
+      "p": 1,
+      "r": 8,
+      "salt": "d94e4eed1ebbee7c63ef7495ae6dad3cc437f32290ba25f245f3d7e1a8051541"
+    }
+  },
+  "key_type": "mnemonic"
+}
